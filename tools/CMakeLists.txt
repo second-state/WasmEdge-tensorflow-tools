@@ -17,19 +17,19 @@ configure_file(
 )
 message(STATUS "Copying shared library to directory ${CMAKE_CURRENT_BINARY_DIR}/libtensorflowlite_c.so")
 configure_file(
-  ${ssvmtensorflowdepslite_SOURCE_DIR}/libtensorflowlite_c.so
+  ${wasmedgetensorflowdepslite_SOURCE_DIR}/libtensorflowlite_c.so
   ${CMAKE_CURRENT_BINARY_DIR}/libtensorflowlite_c.so
   COPYONLY
 )
 message(STATUS "Copying shared library to directory ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow.so.2.4.0")
 configure_file(
-  ${ssvmtensorflowdeps_SOURCE_DIR}/libtensorflow.so.2.4.0
+  ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow.so.2.4.0
   ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow.so.2.4.0
   COPYONLY
 )
 message(STATUS "Copying shared library to directory ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow_framework.so.2.4.0")
 configure_file(
-  ${ssvmtensorflowdeps_SOURCE_DIR}/libtensorflow_framework.so.2.4.0
+  ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_framework.so.2.4.0
   ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow_framework.so.2.4.0
   COPYONLY
 )
@@ -40,61 +40,63 @@ execute_process(
   COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_framework.so.2 ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow_framework.so
 )
 
-add_executable(ssvmc-tensorflow
-  ssvmc.cpp
+if (NOT WASMEDGE_DISABLE_AOT_RUNTIME)
+  add_executable(wasmedgec-tensorflow
+    wasmedgec.cpp
+  )
+
+  target_link_libraries(wasmedgec-tensorflow
+    PRIVATE
+    wasmedgeLoader
+    wasmedgeValidator
+    wasmedgeAOT
+    std::filesystem
+  )
+endif()
+
+add_executable(wasmedge-tensorflow
+  wasmedger.cpp
 )
 
-target_link_libraries(ssvmc-tensorflow
-  PRIVATE
-  ssvmLoader
-  ssvmValidator
-  ssvmAOT
-  std::filesystem
-)
-
-add_executable(ssvm-tensorflow
-  ssvmr.cpp
-)
-
-target_link_libraries(ssvm-tensorflow
+target_link_libraries(wasmedge-tensorflow
   PRIVATE
   ${TENSORFLOW_LIB}
   ${TENSORFLOW_LITE_LIB}
-  ssvmHostModuleSSVMTensorflow
-  ssvmHostModuleSSVMTensorflowLite
-  ssvmHostModuleSSVMImage
-  ssvmVM
+  wasmedgeHostModuleWasmEdgeTensorflow
+  wasmedgeHostModuleWasmEdgeTensorflowLite
+  wasmedgeHostModuleWasmEdgeImage
+  wasmedgeVM
   std::filesystem
   dl
   pthread
 )
 
-target_link_options(ssvm-tensorflow
+target_link_options(wasmedge-tensorflow
   PUBLIC
   "-static-libstdc++"
 )
 
-add_executable(ssvm-tensorflow-lite
-  ssvmr-lite.cpp
+add_executable(wasmedge-tensorflow-lite
+  wasmedger-lite.cpp
 )
 
-target_link_libraries(ssvm-tensorflow-lite
+target_link_libraries(wasmedge-tensorflow-lite
   PRIVATE
   ${TENSORFLOW_LITE_LIB}
-  ssvmHostModuleSSVMTensorflowLite
-  ssvmHostModuleSSVMImage
-  ssvmVM
+  wasmedgeHostModuleWasmEdgeTensorflowLite
+  wasmedgeHostModuleWasmEdgeImage
+  wasmedgeVM
   std::filesystem
   dl
   pthread
 )
 
-target_include_directories(ssvm-tensorflow-lite
+target_include_directories(wasmedge-tensorflow-lite
   PUBLIC
   ${TENSORFLOW_INCLUDE}
 )
 
-target_link_options(ssvm-tensorflow-lite
+target_link_options(wasmedge-tensorflow-lite
   PUBLIC
   "-static-libstdc++"
 )

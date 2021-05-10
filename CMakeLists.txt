@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 cmake_minimum_required(VERSION 3.11)
-project(SSVM-Tensorflow-Tools)
-unset(SSVM_CORE_CONFIGURED)
-unset(SSVM_IMAGE_CONFIGURED)
-unset(SSVM_TENSORFLOW_CONFIGURED)
+project(WasmEdge-Tensorflow-Tools)
+unset(WASMEDGE_CORE_CONFIGURED)
+unset(WASMEDGE_IMAGE_CONFIGURED)
+unset(WASMEDGE_TENSORFLOW_CONFIGURED)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -21,8 +21,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_ENABLE_EXPORTS ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-option(BUILD_TOOLS "Generate ssvm and ssvmc tools." OFF)
-option(BUILD_TOOLS_SSVM_TENSORFLOW "Generate ssvm-tensorflow tools." ON)
+option(BUILD_TOOLS "Generate wasmedge and wasmedgec tools." OFF)
+option(WASMEDGE_DISABLE_AOT_RUNTIME "Disable WasmEdge LLVM-based ahead of time compilation runtime." OFF)
 
 find_package(Boost "1.68.0" REQUIRED)
 find_package(Filesystem REQUIRED Final Experimental)
@@ -30,171 +30,171 @@ find_package(Filesystem REQUIRED Final Experimental)
 # Clone required shared libraries
 include(FetchContent)
 FetchContent_Declare(
-  ssvmtensorflowdeps
-  URL      https://github.com/second-state/ssvm-tensorflow-deps/releases/download/0.7.3/ssvm-tensorflow-deps-TF-0.7.3-manylinux2014_x86_64.tar.gz
-  URL_HASH MD5=a5a98e7efd60ffaf4309636015c85b85
+  wasmedgetensorflowdeps
+  URL      https://github.com/second-state/WasmEdge-tensorflow-deps/releases/download/0.8.0/WasmEdge-tensorflow-deps-TF-0.8.0-manylinux2014_x86_64.tar.gz
+  URL_HASH MD5=50b619f81131b504668e4c0f2d127891
 )
-FetchContent_GetProperties(ssvmtensorflowdeps)
-if (NOT ssvmtensorflowdeps_POPULATED)
+FetchContent_GetProperties(wasmedgetensorflowdeps)
+if (NOT wasmedgetensorflowdeps_POPULATED)
   message(STATUS "Downloading dependency: libtensorflow")
-  FetchContent_Populate(ssvmtensorflowdeps)
+  FetchContent_Populate(wasmedgetensorflowdeps)
   execute_process(
-    COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow.so.2.4.0 ${ssvmtensorflowdeps_SOURCE_DIR}/libtensorflow.so.2
-    COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow.so.2 ${ssvmtensorflowdeps_SOURCE_DIR}/libtensorflow.so
-    COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_framework.so.2.4.0 ${ssvmtensorflowdeps_SOURCE_DIR}/libtensorflow_framework.so.2
-    COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_framework.so.2 ${ssvmtensorflowdeps_SOURCE_DIR}/libtensorflow_framework.so
+    COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow.so.2.4.0 ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow.so.2
+    COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow.so.2 ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow.so
+    COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_framework.so.2.4.0 ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_framework.so.2
+    COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_framework.so.2 ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_framework.so
   )
   message(STATUS "Downloading dependency: libtensorflow - done")
 endif ()
 FetchContent_Declare(
-  ssvmtensorflowdepslite
-  URL      https://github.com/second-state/ssvm-tensorflow-deps/releases/download/0.7.3/ssvm-tensorflow-deps-TFLite-0.7.3-manylinux2014_x86_64.tar.gz
-  URL_HASH MD5=365cb588e15b7db4ba8441cd1d84a6bf
+  wasmedgetensorflowdepslite
+  URL      https://github.com/second-state/WasmEdge-tensorflow-deps/releases/download/0.8.0/WasmEdge-tensorflow-deps-TFLite-0.8.0-manylinux2014_x86_64.tar.gz
+  URL_HASH MD5=2734fd657e89965b6f4faa19e58a7b3e
 )
-FetchContent_GetProperties(ssvmtensorflowdepslite)
-if (NOT ssvmtensorflowdepslite_POPULATED)
+FetchContent_GetProperties(wasmedgetensorflowdepslite)
+if (NOT wasmedgetensorflowdepslite_POPULATED)
   message(STATUS "Downloading dependency: libtensorflowlite")
-  FetchContent_Populate(ssvmtensorflowdepslite)
+  FetchContent_Populate(wasmedgetensorflowdepslite)
   message(STATUS "Downloading dependency: libtensorflowlite - done")
 endif ()
 
 set(TENSORFLOW_LIB
-  "${ssvmtensorflowdeps_SOURCE_DIR}/libtensorflow.so.2.4.0"
-  "${ssvmtensorflowdeps_SOURCE_DIR}/libtensorflow_framework.so.2.4.0"
+  "${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow.so.2.4.0"
+  "${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_framework.so.2.4.0"
 )
 set(TENSORFLOW_LITE_LIB
-  "${ssvmtensorflowdepslite_SOURCE_DIR}/libtensorflowlite_c.so"
+  "${wasmedgetensorflowdepslite_SOURCE_DIR}/libtensorflowlite_c.so"
 )
 
-# Clone ssvm-core
-if(NOT SSVM_CORE_PATH)
+# Clone wasmedge-core
+if(NOT WASMEDGE_CORE_PATH)
   include(FetchContent)
   FetchContent_Declare(
-    ssvm
-    GIT_REPOSITORY https://github.com/second-state/SSVM.git
+    wasmedge
+    GIT_REPOSITORY https://github.com/WasmEdge/WasmEdge.git
     GIT_TAG master
   )
 
-  FetchContent_GetProperties(ssvm)
-  if(NOT ssvm_POPULATED)
-    message(STATUS "Fetching ssvm repository")
-    FetchContent_Populate(ssvm)
-    message(STATUS "Fetching ssvm repository - done")
+  FetchContent_GetProperties(wasmedge)
+  if(NOT wasmedge_POPULATED)
+    message(STATUS "Fetching WasmEdge repository")
+    FetchContent_Populate(wasmedge)
+    message(STATUS "Fetching WasmEdge repository - done")
   endif()
-  add_subdirectory(${ssvm_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}/utils/ssvm-core)
-  set(SSVM_CORE_PATH ${ssvm_SOURCE_DIR})
-  set(SSVM_CORE_BIN_PATH ${CMAKE_CURRENT_BINARY_DIR}/utils/ssvm-core)
-  set(SSVM_CORE_CONFIGURED ON)
+  add_subdirectory(${wasmedge_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}/utils/WasmEdge-core)
+  set(WASMEDGE_CORE_PATH ${wasmedge_SOURCE_DIR})
+  set(WASMEDGE_CORE_BIN_PATH ${CMAKE_CURRENT_BINARY_DIR}/utils/WasmEdge-core)
+  set(WASMEDGE_CORE_CONFIGURED ON)
 else()
   get_filename_component(
-    SSVM_CORE_PATH "${SSVM_CORE_PATH}"
+    WASMEDGE_CORE_PATH "${WASMEDGE_CORE_PATH}"
     REALPATH
     BASE_DIR "${CMAKE_CURRENT_BINARY_DIR}")
-  if(NOT SSVM_CORE_BIN_PATH)
-    add_subdirectory(${SSVM_CORE_PATH} ${CMAKE_CURRENT_BINARY_DIR}/utils/ssvm-core)
-    set(SSVM_CORE_BIN_PATH ${CMAKE_CURRENT_BINARY_DIR}/utils/ssvm-core)
-    set(SSVM_CORE_CONFIGURED ON)
+  if(NOT WASMEDGE_CORE_BIN_PATH)
+    add_subdirectory(${WASMEDGE_CORE_PATH} ${CMAKE_CURRENT_BINARY_DIR}/utils/WasmEdge-core)
+    set(WASMEDGE_CORE_BIN_PATH ${CMAKE_CURRENT_BINARY_DIR}/utils/WasmEdge-core)
+    set(WASMEDGE_CORE_CONFIGURED ON)
   else()
     get_filename_component(
-      SSVM_CORE_BIN_PATH "${SSVM_CORE_BIN_PATH}"
+      WASMEDGE_CORE_BIN_PATH "${WASMEDGE_CORE_BIN_PATH}"
       REALPATH
       BASE_DIR "${CMAKE_CURRENT_BINARY_DIR}")
   endif()
 endif()
 
-# Clone ssvm-image
-if(NOT SSVM_IMAGE_PATH)
+# Clone wasmedge-image
+if(NOT WASMEDGE_IMAGE_PATH)
   include(FetchContent)
   FetchContent_Declare(
-    ssvm_image
-    GIT_REPOSITORY https://github.com/second-state/ssvm-image.git
-    GIT_TAG 0.8.0-rc1
+    wasmedge_image
+    GIT_REPOSITORY https://github.com/second-state/WasmEdge-image.git
+    GIT_TAG 0.8.0-rc2
   )
 
-  FetchContent_GetProperties(ssvm_image)
-  if(NOT ssvm_image_POPULATED)
-    message(STATUS "Fetching ssvm-image repository")
-    FetchContent_Populate(ssvm_image)
-    message(STATUS "Fetching ssvm-image repository - done")
+  FetchContent_GetProperties(wasmedge_image)
+  if(NOT wasmedge_image_POPULATED)
+    message(STATUS "Fetching WasmEdge-image repository")
+    FetchContent_Populate(wasmedge_image)
+    message(STATUS "Fetching WasmEdge-image repository - done")
   endif()
-  add_subdirectory(${ssvm_image_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}/utils/ssvm-image)
-  set(SSVM_IMAGE_PATH ${ssvm_image_SOURCE_DIR})
-  set(SSVM_IMAGE_BIN_PATH ${CMAKE_CURRENT_BINARY_DIR}/utils/ssvm-image)
-  set(SSVM_IMAGE_CONFIGURED ON)
+  add_subdirectory(${wasmedge_image_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}/utils/WasmEdge-image)
+  set(WASMEDGE_IMAGE_PATH ${wasmedge_image_SOURCE_DIR})
+  set(WASMEDGE_IMAGE_BIN_PATH ${CMAKE_CURRENT_BINARY_DIR}/utils/WasmEdge-image)
+  set(WASMEDGE_IMAGE_CONFIGURED ON)
 else()
   get_filename_component(
-    SSVM_IMAGE_PATH "${SSVM_IMAGE_PATH}"
+    WASMEDGE_IMAGE_PATH "${WASMEDGE_IMAGE_PATH}"
     REALPATH
     BASE_DIR "${CMAKE_CURRENT_BINARY_DIR}")
-  if(NOT SSVM_IMAGE_BIN_PATH)
-    add_subdirectory(${SSVM_IMAGE_PATH} ${CMAKE_CURRENT_BINARY_DIR}/utils/ssvm-image)
-    set(SSVM_IMAGE_BIN_PATH ${CMAKE_CURRENT_BINARY_DIR}/utils/ssvm-image)
-    set(SSVM_IMAGE_CONFIGURED ON)
+  if(NOT WASMEDGE_IMAGE_BIN_PATH)
+    add_subdirectory(${WASMEDGE_IMAGE_PATH} ${CMAKE_CURRENT_BINARY_DIR}/utils/WasmEdge-image)
+    set(WASMEDGE_IMAGE_BIN_PATH ${CMAKE_CURRENT_BINARY_DIR}/utils/WasmEdge-image)
+    set(WASMEDGE_IMAGE_CONFIGURED ON)
   else()
     get_filename_component(
-      SSVM_IMAGE_BIN_PATH "${SSVM_IMAGE_BIN_PATH}"
+      WASMEDGE_IMAGE_BIN_PATH "${WASMEDGE_IMAGE_BIN_PATH}"
       REALPATH
       BASE_DIR "${CMAKE_CURRENT_BINARY_DIR}")
   endif()
 endif()
 
-# Clone ssvm-tensorflow
-if(NOT SSVM_TENSORFLOW_PATH)
+# Clone wasmedge-tensorflow
+if(NOT WASMEDGE_TENSORFLOW_PATH)
   include(FetchContent)
   FetchContent_Declare(
-    ssvm_tensorflow
-    GIT_REPOSITORY https://github.com/second-state/ssvm-tensorflow.git
-    GIT_TAG 0.8.0-rc1
+    wasmedge_tensorflow
+    GIT_REPOSITORY https://github.com/second-state/WasmEdge-tensorflow.git
+    GIT_TAG 0.8.0-rc2
   )
 
-  FetchContent_GetProperties(ssvm_tensorflow)
-  if(NOT ssvm_tensorflow_POPULATED)
-    message(STATUS "Fetching ssvm-tensorflow repository")
-    FetchContent_Populate(ssvm_tensorflow)
-    message(STATUS "Fetching ssvm-tensorflow repository - done")
+  FetchContent_GetProperties(wasmedge_tensorflow)
+  if(NOT wasmedge_tensorflow_POPULATED)
+    message(STATUS "Fetching WasmEdge-tensorflow repository")
+    FetchContent_Populate(wasmedge_tensorflow)
+    message(STATUS "Fetching WasmEdge-tensorflow repository - done")
   endif()
-  add_subdirectory(${ssvm_tensorflow_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}/utils/ssvm-tensorflow)
-  set(SSVM_TENSORFLOW_PATH ${ssvm_tensorflow_SOURCE_DIR})
-  set(SSVM_TENSORFLOW_BIN_PATH ${CMAKE_CURRENT_BINARY_DIR}/utils/ssvm-tensorflow)
-  set(SSVM_TENSORFLOW_CONFIGURED ON)
+  add_subdirectory(${wasmedge_tensorflow_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}/utils/WasmEdge-tensorflow)
+  set(WASMEDGE_TENSORFLOW_PATH ${wasmedge_tensorflow_SOURCE_DIR})
+  set(WASMEDGE_TENSORFLOW_BIN_PATH ${CMAKE_CURRENT_BINARY_DIR}/utils/WasmEdge-tensorflow)
+  set(WASMEDGE_TENSORFLOW_CONFIGURED ON)
 else()
   get_filename_component(
-    SSVM_TENSORFLOW_PATH "${SSVM_TENSORFLOW_PATH}"
+    WASMEDGE_TENSORFLOW_PATH "${WASMEDGE_TENSORFLOW_PATH}"
     REALPATH
     BASE_DIR "${CMAKE_CURRENT_BINARY_DIR}")
-  if(NOT SSVM_TENSORFLOW_BIN_PATH)
-    add_subdirectory(${SSVM_TENSORFLOW_PATH} ${CMAKE_CURRENT_BINARY_DIR}/utils/ssvm-tensorflow)
-    set(SSVM_TENSORFLOW_BIN_PATH ${CMAKE_CURRENT_BINARY_DIR}/utils/ssvm-tensorflow)
-    set(SSVM_TENSORFLOW_CONFIGURED ON)
+  if(NOT WASMEDGE_TENSORFLOW_BIN_PATH)
+    add_subdirectory(${WASMEDGE_TENSORFLOW_PATH} ${CMAKE_CURRENT_BINARY_DIR}/utils/WasmEdge-tensorflow)
+    set(WASMEDGE_TENSORFLOW_BIN_PATH ${CMAKE_CURRENT_BINARY_DIR}/utils/WasmEdge-tensorflow)
+    set(WASMEDGE_TENSORFLOW_CONFIGURED ON)
   else()
     get_filename_component(
-      SSVM_TENSORFLOW_BIN_PATH "${SSVM_TENSORFLOW_BIN_PATH}"
+      WASMEDGE_TENSORFLOW_BIN_PATH "${WASMEDGE_TENSORFLOW_BIN_PATH}"
       REALPATH
       BASE_DIR "${CMAKE_CURRENT_BINARY_DIR}")
   endif()
 endif()
 
-message(STATUS "Set ssvm-core source path: ${SSVM_CORE_PATH}")
-message(STATUS "Set ssvm-core binary path: ${SSVM_CORE_BIN_PATH}")
-message(STATUS "Set ssvm-image source path: ${SSVM_IMAGE_PATH}")
-message(STATUS "Set ssvm-image binary path: ${SSVM_IMAGE_BIN_PATH}")
-message(STATUS "Set ssvm-tensorflow source path: ${SSVM_TENSORFLOW_PATH}")
-message(STATUS "Set ssvm-tensorflow binary path: ${SSVM_TENSORFLOW_BIN_PATH}")
+message(STATUS "Set WasmEdge-core source path: ${WASMEDGE_CORE_PATH}")
+message(STATUS "Set WasmEdge-core binary path: ${WASMEDGE_CORE_BIN_PATH}")
+message(STATUS "Set WasmEdge-image source path: ${WASMEDGE_IMAGE_PATH}")
+message(STATUS "Set WasmEdge-image binary path: ${WASMEDGE_IMAGE_BIN_PATH}")
+message(STATUS "Set WasmEdge-tensorflow source path: ${WASMEDGE_TENSORFLOW_PATH}")
+message(STATUS "Set WasmEdge-tensorflow binary path: ${WASMEDGE_TENSORFLOW_BIN_PATH}")
 
 # TensorFlow dependencies library
-add_subdirectory(${SSVM_TENSORFLOW_PATH}/utils/ssvm-tensorflow-deps)
+add_subdirectory(${WASMEDGE_TENSORFLOW_PATH}/utils/WasmEdge-tensorflow-deps)
 
 include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}/include
   ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 include_directories(BEFORE
-  ${SSVM_IMAGE_BIN_PATH}/include
-  ${SSVM_IMAGE_PATH}/include
+  ${WASMEDGE_IMAGE_BIN_PATH}/include
+  ${WASMEDGE_IMAGE_PATH}/include
 )
 include_directories(BEFORE
-  ${SSVM_TENSORFLOW_BIN_PATH}/include
-  ${SSVM_TENSORFLOW_PATH}/include
+  ${WASMEDGE_TENSORFLOW_BIN_PATH}/include
+  ${WASMEDGE_TENSORFLOW_PATH}/include
 )
 
 add_subdirectory(tools)

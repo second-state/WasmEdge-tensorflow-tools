@@ -1,0 +1,35 @@
+name: build
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build_manylinux2014_x86_64:
+    name: Build WasmEdge-tensorflow-tools using g++ on manylinux2014_x86_64 platform
+    runs-on: ubuntu-latest
+    container:
+      image: wasmedge/wasmedge:manylinux2014_x86_64
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Build manylinux2014_x86_64 package
+      run: |
+        curl -s -L -O --remote-name-all https://boostorg.jfrog.io/artifactory/main/release/1.75.0/source/boost_1_75_0.tar.bz2
+        bzip2 -dc boost_1_75_0.tar.bz2 | tar -xf -
+        export PATH="/toolchain/bin:$PATH"
+        export CC=gcc
+        export CXX=g++
+        rm -rf build
+        cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DBOOST_INCLUDEDIR=./boost_1_75_0/ .
+        cmake --build build
+        cd build/tools
+        tar -zcvf wasmedge-tf-tools.tar.gz show-tflite-tensor wasmedge-tensorflow wasmedge-tensorflow-lite wasmedgec-tensorflow download_dependencies_all.sh download_dependencies_tf.sh download_dependencies_tflite.sh
+        tar Jcvf wasmedge-tf-tools.tar.xz show-tflite-tensor wasmedge-tensorflow wasmedge-tensorflow-lite wasmedgec-tensorflow download_dependencies_all.sh download_dependencies_tf.sh download_dependencies_tflite.sh
+        cd ../..
+        mv build/tools/wasmedge-tf-tools.tar.gz wasmedge-tf-tools.tar.gz
+        mv build/tools/wasmedge-tf-tools.tar.xz wasmedge-tf-tools.tar.xz
