@@ -1,3 +1,16 @@
+### 0.8.0 (2021-05-14)
+
+This is the tools extension for [WasmEdge](https://github.com/WasmEdge/WasmEdge).
+Please refer to the [WasmEdge 0.8.0](https://github.com/WasmEdge/WasmEdge/releases/tag/0.8.0) for more details.
+
+Features:
+
+* Moved tools from [WasmEdge-Tensorflow](https://github.com/second-state/WasmEdge-tensorflow).
+* Renamed this project to `WasmEdge-tensorflow-tools` and updated the `WasmEdge` dependency.
+* Add release and build CI.
+* Renamed the CMake options.
+  * Option `BUILD_AOT_RUNTIME` (formerly `SSVM_DISABLE_AOT_RUNTIME` and `OFF` by default), which is `ON` by default, is for enabling the compilation of the ahead-of-Time compiler.
+
 ### 0.8.0-rc2 (2021-05-10)
 
 This is the tools extension for [WasmEdge](https://github.com/WasmEdge/WasmEdge).
