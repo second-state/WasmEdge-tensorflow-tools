@@ -24,8 +24,9 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # List of WasmEdge options
 option(BUILD_TOOLS "Generate wasmedge and wasmedgec tools." OFF)
+# Tools will build in this project, hence the wasmedge and wasmedgec are not needed.
 option(BUILD_AOT_RUNTIME "Enable WasmEdge LLVM-based ahead of time compilation runtime." ON)
-option(BUILD_SHARED_LIB "Generate the libwasmedge-image_c shared library." OFF)
+option(BUILD_SHARED_LIB "Generate the libwasmedge_c and related shared libraries." OFF)
 
 find_package(Boost "1.68.0" REQUIRED)
 find_package(Filesystem REQUIRED Final Experimental)
