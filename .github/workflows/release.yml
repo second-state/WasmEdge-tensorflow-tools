@@ -32,7 +32,7 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: WasmEdge-TensorFlow-Tools ${{ steps.prep.outputs.version }}
           body_path: .CurrentChangelog.md
-          draft: false
+          draft: true
           prerelease: false
   build_and_upload_manylinux2014_x86_64:
     name: Build and upload WasmEdge-TensorFlow-Tools on manylinux2014_x86_64 platform
