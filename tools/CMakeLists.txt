@@ -70,11 +70,6 @@ target_link_libraries(wasmedge-tensorflow
   pthread
 )
 
-target_link_options(wasmedge-tensorflow
-  PUBLIC
-  "-static-libstdc++"
-)
-
 add_executable(wasmedge-tensorflow-lite
   wasmedger-lite.cpp
 )
@@ -92,11 +87,6 @@ target_link_libraries(wasmedge-tensorflow-lite
 target_include_directories(wasmedge-tensorflow-lite
   PUBLIC
   ${TENSORFLOW_INCLUDE}
-)
-
-target_link_options(wasmedge-tensorflow-lite
-  PUBLIC
-  "-static-libstdc++"
 )
 
 add_executable(show-tflite-tensor
