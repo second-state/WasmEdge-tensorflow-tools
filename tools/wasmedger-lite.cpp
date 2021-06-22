@@ -103,19 +103,13 @@ int main(int Argc, const char *Argv[]) {
     Conf.addProposal(WasmEdge::Proposal::SIMD);
   }
   if (MemLim.value().size() > 0) {
-    Conf.setMaxMemoryPage(MemLim.value().back());
+    Conf.getRuntimeConfigure().setMaxMemoryPage(MemLim.value().back());
   }
 
   Conf.addHostRegistration(WasmEdge::HostRegistration::Wasi);
   Conf.addHostRegistration(WasmEdge::HostRegistration::WasmEdge_Process);
   const auto InputPath = std::filesystem::absolute(SoName.value());
   WasmEdge::VM::VM VM(Conf);
-  WasmEdge::Host::WasmEdgeTensorflowFakeModule TensorflowMod;
-  WasmEdge::Host::WasmEdgeTensorflowLiteModule TensorflowLiteMod;
-  WasmEdge::Host::WasmEdgeImageModule ImageMod;
-  VM.registerModule(TensorflowMod);
-  VM.registerModule(TensorflowLiteMod);
-  VM.registerModule(ImageMod);
 
   WasmEdge::Host::WasiModule *WasiMod =
       dynamic_cast<WasmEdge::Host::WasiModule *>(
@@ -131,9 +125,10 @@ int main(int Argc, const char *Argv[]) {
     ProcMod->getEnv().AllowedCmd.insert(Str);
   }
 
-  WasiMod->getEnv().init(Dir.value(),
-                         InputPath.filename().replace_extension("wasm"sv),
-                         Args.value(), Env.value());
+  WasiMod->getEnv().init(
+      Dir.value(),
+      InputPath.filename().replace_extension(std::filesystem::u8path("wasm"sv)),
+      Args.value(), Env.value());
 
   if (!Reactor.value()) {
     // command mode
@@ -187,7 +182,7 @@ int main(int Argc, const char *Argv[]) {
          I < FuncType.Params.size() && I + 1 < Args.value().size(); ++I) {
       switch (FuncType.Params[I]) {
       case WasmEdge::ValType::I32: {
-        const uint32_t Value = std::stoll(Args.value()[I + 1]);
+        const uint32_t Value = std::stol(Args.value()[I + 1]);
         FuncArgs.emplace_back(Value);
         FuncArgTypes.emplace_back(WasmEdge::ValType::I32);
         break;
@@ -199,7 +194,7 @@ int main(int Argc, const char *Argv[]) {
         break;
       }
       case WasmEdge::ValType::F32: {
-        const float Value = std::stod(Args.value()[I + 1]);
+        const float Value = std::stof(Args.value()[I + 1]);
         FuncArgs.emplace_back(Value);
         FuncArgTypes.emplace_back(WasmEdge::ValType::F32);
         break;
@@ -229,16 +224,16 @@ int main(int Argc, const char *Argv[]) {
       for (size_t I = 0; I < FuncType.Returns.size(); ++I) {
         switch (FuncType.Returns[I]) {
         case WasmEdge::ValType::I32:
-          std::cout << std::get<uint32_t>((*Result)[I]) << '\n';
+          std::cout << (*Result)[I].get<uint32_t>() << '\n';
           break;
         case WasmEdge::ValType::I64:
-          std::cout << std::get<uint64_t>((*Result)[I]) << '\n';
+          std::cout << (*Result)[I].get<uint64_t>() << '\n';
           break;
         case WasmEdge::ValType::F32:
-          std::cout << std::get<float>((*Result)[I]) << '\n';
+          std::cout << (*Result)[I].get<float>() << '\n';
           break;
         case WasmEdge::ValType::F64:
-          std::cout << std::get<double>((*Result)[I]) << '\n';
+          std::cout << (*Result)[I].get<double>() << '\n';
           break;
         /// TODO: FuncRef and ExternRef
         default:

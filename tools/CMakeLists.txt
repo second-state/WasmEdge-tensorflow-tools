@@ -48,9 +48,9 @@ if (NOT WASMEDGE_DISABLE_AOT_RUNTIME)
   target_link_libraries(wasmedgec-tensorflow
     PRIVATE
     wasmedgeLoader
+    wasmedgeCommon
     wasmedgeValidator
     wasmedgeAOT
-    std::filesystem
   )
 endif()
 
@@ -66,7 +66,6 @@ target_link_libraries(wasmedge-tensorflow
   wasmedgeHostModuleWasmEdgeTensorflowLite
   wasmedgeHostModuleWasmEdgeImage
   wasmedgeVM
-  std::filesystem
   dl
   pthread
 )
@@ -86,7 +85,6 @@ target_link_libraries(wasmedge-tensorflow-lite
   wasmedgeHostModuleWasmEdgeTensorflowLite
   wasmedgeHostModuleWasmEdgeImage
   wasmedgeVM
-  std::filesystem
   dl
   pthread
 )

@@ -6,7 +6,6 @@ unset(WASMEDGE_CORE_CONFIGURED)
 unset(WASMEDGE_IMAGE_CONFIGURED)
 unset(WASMEDGE_TENSORFLOW_CONFIGURED)
 
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE RelWithDebInfo)
@@ -19,8 +18,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=gold")
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_ENABLE_EXPORTS ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
+set(CMAKE_SKIP_RPATH ON)
 
 # List of WasmEdge options
 option(BUILD_TOOLS "Generate wasmedge and wasmedgec tools." OFF)
@@ -29,7 +31,6 @@ option(BUILD_AOT_RUNTIME "Enable WasmEdge LLVM-based ahead of time compilation r
 option(BUILD_SHARED_LIB "Generate the libwasmedge_c and related shared libraries." OFF)
 
 find_package(Boost "1.68.0" REQUIRED)
-find_package(Filesystem REQUIRED Final Experimental)
 
 # Clone required shared libraries
 include(FetchContent)
@@ -76,7 +77,7 @@ if(NOT WASMEDGE_CORE_PATH)
   FetchContent_Declare(
     wasmedge
     GIT_REPOSITORY https://github.com/WasmEdge/WasmEdge.git
-    GIT_TAG 0.8.0
+    GIT_TAG 0.8.1
   )
 
   FetchContent_GetProperties(wasmedge)
@@ -112,7 +113,7 @@ if(NOT WASMEDGE_IMAGE_PATH)
   FetchContent_Declare(
     wasmedge_image
     GIT_REPOSITORY https://github.com/second-state/WasmEdge-image.git
-    GIT_TAG 0.8.0
+    GIT_TAG 0.8.1
   )
 
   FetchContent_GetProperties(wasmedge_image)
@@ -148,7 +149,7 @@ if(NOT WASMEDGE_TENSORFLOW_PATH)
   FetchContent_Declare(
     wasmedge_tensorflow
     GIT_REPOSITORY https://github.com/second-state/WasmEdge-tensorflow.git
-    GIT_TAG 0.8.0
+    GIT_TAG 0.8.1
   )
 
   FetchContent_GetProperties(wasmedge_tensorflow)

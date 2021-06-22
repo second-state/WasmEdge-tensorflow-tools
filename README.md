@@ -41,7 +41,7 @@ $ sudo apt install -y clang
 ```bash
 $ git clone git@github.com:second-state/WasmEdge-tensorflow-tools.git
 $ cd WasmEdge-tensorflow-tools
-$ git checkout 0.8.0-rc2
+$ git checkout 0.8.1
 ```
 
 ## Build WasmEdge-Tensorflow-Tools
@@ -94,8 +94,8 @@ The executable `build/tools/wasmedge-tensorflow-lite` is the runner for executin
 ## Run WasmEdge-tensorflow-tools
 
 ```bash
-wget https://github.com/second-state/WasmEdge-tensorflow-tools/releases/download/0.8.0-rc2/WasmEdge-tensorflow-tools-0.8.0-rc2-manylinux2014_x86_64.tar.gz
-tar -zxvf WasmEdge-tensorflow-tools-0.8.0-rc2-manylinux2014_x86_64.tar.gz
+wget https://github.com/second-state/WasmEdge-tensorflow-tools/releases/download/0.8.1/WasmEdge-tensorflow-tools-0.8.1-manylinux2014_x86_64.tar.gz
+tar -zxvf WasmEdge-tensorflow-tools-0.8.1-manylinux2014_x86_64.tar.gz
 # Download the required shared libraries and make the symbolic links.
 ./download_dependencies_all.sh
 LD_LIBRARY_PATH=. ./wasmedge-tensorflow
