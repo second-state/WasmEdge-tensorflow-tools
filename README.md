@@ -41,7 +41,7 @@ $ sudo apt install -y clang
 ```bash
 $ git clone git@github.com:second-state/WasmEdge-tensorflow-tools.git
 $ cd WasmEdge-tensorflow-tools
-$ git checkout 0.8.1
+$ git checkout 0.8.2-rc2
 ```
 
 ## Build WasmEdge-Tensorflow-Tools
@@ -94,12 +94,34 @@ The executable `build/tools/wasmedge-tensorflow-lite` is the runner for executin
 ## Run WasmEdge-tensorflow-tools
 
 ```bash
-wget https://github.com/second-state/WasmEdge-tensorflow-tools/releases/download/0.8.1/WasmEdge-tensorflow-tools-0.8.1-manylinux2014_x86_64.tar.gz
-tar -zxvf WasmEdge-tensorflow-tools-0.8.1-manylinux2014_x86_64.tar.gz
+wget https://github.com/second-state/WasmEdge-tensorflow-tools/releases/download/0.8.2-rc2/WasmEdge-tensorflow-tools-0.8.2-rc2-manylinux2014_x86_64.tar.gz
+tar -zxvf WasmEdge-tensorflow-tools-0.8.2-rc2-manylinux2014_x86_64.tar.gz
 # Download the required shared libraries and make the symbolic links.
 ./download_dependencies_all.sh
 LD_LIBRARY_PATH=. ./wasmedge-tensorflow
 # For developers want to use TensorFlow-Lite only
 ./download_dependencies_tflite.sh
 LD_LIBRARY_PATH=. ./wasmedge-tensorflow-lite
+```
+
+We provide a simple tool for showing the tensors information of TensorFlow-Lite models.
+Take the [bird v1 tflite model](https://github.com/second-state/wasm-learning/blob/master/rust/birds_v1/lite-model_aiy_vision_classifier_birds_V1_3.tflite) for example.
+
+```bash
+LD_LIBRARY_PATH=. ./show-tflite-tensor lite-model_aiy_vision_classifier_birds_V1_3.tflite
+```
+
+The output will be as following:
+
+```bash
+Input tensor nums: 1
+    Input tensor name: module/hub_input/images_uint8
+        dimensions: [1 , 224 , 224 , 3]
+        data type: UInt8
+        tensor byte size: 150528
+Output tensor nums: 1
+    Output tensor name: module/prediction
+        dimensions: [1 , 965]
+        data type: UInt8
+        tensor byte size: 965
 ```
