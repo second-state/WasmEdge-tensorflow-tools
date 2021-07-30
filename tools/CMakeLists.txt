@@ -40,7 +40,7 @@ execute_process(
   COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_framework.so.2 ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow_framework.so
 )
 
-if (NOT WASMEDGE_DISABLE_AOT_RUNTIME)
+if (WASMEDGE_BUILD_AOT_RUNTIME)
   add_executable(wasmedgec-tensorflow
     wasmedgec.cpp
   )

@@ -11,6 +11,7 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE RelWithDebInfo)
 endif()
 
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION OFF)
 if(CMAKE_BUILD_TYPE STREQUAL Release OR CMAKE_BUILD_TYPE STREQUAL RelWithDebInfo)
   set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
 endif()
@@ -25,12 +26,14 @@ set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 set(CMAKE_SKIP_RPATH ON)
 
 # List of WasmEdge options
-option(BUILD_TOOLS "Generate wasmedge and wasmedgec tools." OFF)
+option(WASMEDGE_BUILD_TOOLS "Generate wasmedge and wasmedgec tools." OFF)
 # Tools will build in this project, hence the wasmedge and wasmedgec are not needed.
-option(BUILD_AOT_RUNTIME "Enable WasmEdge LLVM-based ahead of time compilation runtime." ON)
-option(BUILD_SHARED_LIB "Generate the libwasmedge_c and related shared libraries." OFF)
+option(WASMEDGE_BUILD_AOT_RUNTIME "Enable WasmEdge LLVM-based ahead of time compilation runtime." ON)
+option(WASMEDGE_BUILD_SHARED_LIB "Generate the WasmEdge shared library." OFF)
+option(WASMEDGE_IMAGE_BUILD_SHARED_LIB "Generate the libwasmedge-image_c shared library." OFF)
+option(WASMEDGE_TENSORFLOW_BUILD_SHARED_LIB "Generate the libwasmedge-image_c shared library." OFF)
 
-find_package(Boost "1.68.0" REQUIRED)
+# boost is found in the WasmEdge-core.
 
 # Clone required shared libraries
 include(FetchContent)
@@ -77,7 +80,7 @@ if(NOT WASMEDGE_CORE_PATH)
   FetchContent_Declare(
     wasmedge
     GIT_REPOSITORY https://github.com/WasmEdge/WasmEdge.git
-    GIT_TAG 0.8.1
+    GIT_TAG 0.8.2-rc.2
   )
 
   FetchContent_GetProperties(wasmedge)
@@ -113,7 +116,7 @@ if(NOT WASMEDGE_IMAGE_PATH)
   FetchContent_Declare(
     wasmedge_image
     GIT_REPOSITORY https://github.com/second-state/WasmEdge-image.git
-    GIT_TAG 0.8.1
+    GIT_TAG 0.8.2-rc2
   )
 
   FetchContent_GetProperties(wasmedge_image)
@@ -149,7 +152,7 @@ if(NOT WASMEDGE_TENSORFLOW_PATH)
   FetchContent_Declare(
     wasmedge_tensorflow
     GIT_REPOSITORY https://github.com/second-state/WasmEdge-tensorflow.git
-    GIT_TAG 0.8.1
+    GIT_TAG 0.8.2-rc2
   )
 
   FetchContent_GetProperties(wasmedge_tensorflow)
