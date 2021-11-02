@@ -1,3 +1,34 @@
+### 0.9.0-rc.2 (2021-11-02)
+
+This is the host function extension for [WasmEdge](https://github.com/WasmEdge/WasmEdge).
+Please refer to the [WasmEdge 0.9.0-rc.2](https://github.com/WasmEdge/WasmEdge/releases/tag/0.9.0-rc.2) for more details.
+
+Features:
+
+* Update the `WasmEdge` dependency to `0.9.0-rc.2`.
+* Remove the tool `wasmedger-tensorflow`. Please use `wasmedgec` in [WasmEdge](https://github.com/WasmEdge/WasmEdge) project instead.
+
+### 0.9.0-rc.1 (2021-11-02)
+
+This is the host function extension for [WasmEdge](https://github.com/WasmEdge/WasmEdge).
+Please refer to the [WasmEdge 0.9.0-rc.2](https://github.com/WasmEdge/WasmEdge/releases/tag/0.9.0-rc.2) for more details.
+
+Features:
+
+* Update the `WasmEdge` dependency to `0.9.0-rc.2`.
+* Remove the tool `wasmedger-tensorflow`. Please use `wasmedgec` in [WasmEdge](https://github.com/WasmEdge/WasmEdge) project instead.
+
+### 0.8.2 (2021-09-06)
+
+This is the host function extension for [WasmEdge](https://github.com/WasmEdge/WasmEdge).
+Please refer to the [WasmEdge 0.8.2](https://github.com/WasmEdge/WasmEdge/releases/tag/0.8.2) for more details.
+
+Features:
+
+* Update the `WasmEdge` dependency to `0.8.2`.
+* Modified the CMake option `DISABLE_AOT_RUNTIME` to `WASMEDGE_BUILD_AOT_RUNTIME` for enabling AOT compiler compilation (`ON` by default).
+* Added the `generic-binary` option for the AOT compiler for generating the generic binary.
+
 ### 0.8.2-rc2 (2021-07-29)
 
 This is the host function extension for [WasmEdge](https://github.com/WasmEdge/WasmEdge).
