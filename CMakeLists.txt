@@ -28,36 +28,38 @@ set(CMAKE_SKIP_RPATH ON)
 # List of WasmEdge options
 option(WASMEDGE_BUILD_TOOLS "Generate wasmedge and wasmedgec tools." OFF)
 # Tools will build in this project, hence the wasmedge and wasmedgec are not needed.
-option(WASMEDGE_BUILD_AOT_RUNTIME "Enable WasmEdge LLVM-based ahead of time compilation runtime." ON)
+option(WASMEDGE_BUILD_AOT_RUNTIME "Enable WasmEdge LLVM-based ahead of time compilation runtime." OFF)
+# Tools not need the AOT compiler.
 option(WASMEDGE_BUILD_SHARED_LIB "Generate the WasmEdge shared library." OFF)
+# Tools not need the libwasmedge_c.so.
 option(WASMEDGE_IMAGE_BUILD_SHARED_LIB "Generate the libwasmedge-image_c shared library." OFF)
+# Tools not need the libwasmedge-image_c.so.
 option(WASMEDGE_TENSORFLOW_BUILD_SHARED_LIB "Generate the libwasmedge-image_c shared library." OFF)
-
-# boost is found in the WasmEdge-core.
+# Tools not need the libwasmedge-tensorflow_c.so.
 
 # Clone required shared libraries
 include(FetchContent)
 FetchContent_Declare(
   wasmedgetensorflowdeps
-  URL      https://github.com/second-state/WasmEdge-tensorflow-deps/releases/download/0.8.0/WasmEdge-tensorflow-deps-TF-0.8.0-manylinux2014_x86_64.tar.gz
-  URL_HASH MD5=50b619f81131b504668e4c0f2d127891
+  URL      https://github.com/second-state/WasmEdge-tensorflow-deps/releases/download/0.9.0-rc.2/WasmEdge-tensorflow-deps-TF-0.9.0-rc.2-manylinux2014_x86_64.tar.gz
+  URL_HASH SHA256=de0ad0baee9911515e5025906c73e39a885afea6dd9767ea7b3503d97b7afe8f
 )
 FetchContent_GetProperties(wasmedgetensorflowdeps)
 if (NOT wasmedgetensorflowdeps_POPULATED)
   message(STATUS "Downloading dependency: libtensorflow")
   FetchContent_Populate(wasmedgetensorflowdeps)
   execute_process(
-    COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow.so.2.4.0 ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow.so.2
+    COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow.so.2.6.0 ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow.so.2
     COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow.so.2 ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow.so
-    COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_framework.so.2.4.0 ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_framework.so.2
+    COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_framework.so.2.6.0 ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_framework.so.2
     COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_framework.so.2 ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_framework.so
   )
   message(STATUS "Downloading dependency: libtensorflow - done")
 endif ()
 FetchContent_Declare(
   wasmedgetensorflowdepslite
-  URL      https://github.com/second-state/WasmEdge-tensorflow-deps/releases/download/0.8.0/WasmEdge-tensorflow-deps-TFLite-0.8.0-manylinux2014_x86_64.tar.gz
-  URL_HASH MD5=2734fd657e89965b6f4faa19e58a7b3e
+  URL      https://github.com/second-state/WasmEdge-tensorflow-deps/releases/download/0.9.0-rc.2/WasmEdge-tensorflow-deps-TFLite-0.9.0-rc.2-manylinux2014_x86_64.tar.gz
+  URL_HASH SHA256=43b2a782efb58b047c6d33f64d7ac711b24426959f91287d910edb8937c11dea
 )
 FetchContent_GetProperties(wasmedgetensorflowdepslite)
 if (NOT wasmedgetensorflowdepslite_POPULATED)
@@ -67,8 +69,8 @@ if (NOT wasmedgetensorflowdepslite_POPULATED)
 endif ()
 
 set(TENSORFLOW_LIB
-  "${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow.so.2.4.0"
-  "${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_framework.so.2.4.0"
+  "${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow.so.2.6.0"
+  "${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_framework.so.2.6.0"
 )
 set(TENSORFLOW_LITE_LIB
   "${wasmedgetensorflowdepslite_SOURCE_DIR}/libtensorflowlite_c.so"
@@ -80,7 +82,7 @@ if(NOT WASMEDGE_CORE_PATH)
   FetchContent_Declare(
     wasmedge
     GIT_REPOSITORY https://github.com/WasmEdge/WasmEdge.git
-    GIT_TAG 0.8.2
+    GIT_TAG 0.9.0-rc.2
   )
 
   FetchContent_GetProperties(wasmedge)
@@ -116,7 +118,7 @@ if(NOT WASMEDGE_IMAGE_PATH)
   FetchContent_Declare(
     wasmedge_image
     GIT_REPOSITORY https://github.com/second-state/WasmEdge-image.git
-    GIT_TAG 0.8.2
+    GIT_TAG 0.9.0-rc.2
   )
 
   FetchContent_GetProperties(wasmedge_image)
@@ -152,7 +154,7 @@ if(NOT WASMEDGE_TENSORFLOW_PATH)
   FetchContent_Declare(
     wasmedge_tensorflow
     GIT_REPOSITORY https://github.com/second-state/WasmEdge-tensorflow.git
-    GIT_TAG 0.8.2
+    GIT_TAG 0.9.0-rc.2
   )
 
   FetchContent_GetProperties(wasmedge_tensorflow)
@@ -189,9 +191,6 @@ message(STATUS "Set WasmEdge-image binary path: ${WASMEDGE_IMAGE_BIN_PATH}")
 message(STATUS "Set WasmEdge-tensorflow source path: ${WASMEDGE_TENSORFLOW_PATH}")
 message(STATUS "Set WasmEdge-tensorflow binary path: ${WASMEDGE_TENSORFLOW_BIN_PATH}")
 
-# TensorFlow dependencies library
-add_subdirectory(${WASMEDGE_TENSORFLOW_PATH}/utils/WasmEdge-tensorflow-deps)
-
 include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}/include
   ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -203,6 +202,7 @@ include_directories(BEFORE
 include_directories(BEFORE
   ${WASMEDGE_TENSORFLOW_BIN_PATH}/include
   ${WASMEDGE_TENSORFLOW_PATH}/include
+  ${WASMEDGE_TENSORFLOW_PATH}/utils/WasmEdge-tensorflow-deps
 )
 
 add_subdirectory(tools)

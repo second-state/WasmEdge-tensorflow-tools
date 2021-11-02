@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 #include "common/configure.h"
 #include "common/filesystem.h"
-#include "common/value.h"
+#include "common/types.h"
 #include "common/version.h"
 #include "host/wasi/wasimodule.h"
 #include "host/wasmedge_process/processmodule.h"
@@ -43,12 +43,20 @@ int main(int Argc, const char *Argv[]) {
           "Environ variables. Each variable can be specified as --env `NAME=VALUE`."sv),
       PO::MetaVar("ENVS"sv));
 
-  PO::Option<PO::Toggle> BulkMemoryOperations(
-      PO::Description("Disable Bulk-memory operations"sv));
-  PO::Option<PO::Toggle> ReferenceTypes(
-      PO::Description("Disable Reference types (externref)"sv));
-  PO::Option<PO::Toggle> SIMD(PO::Description("Enable SIMD"sv));
-  PO::Option<PO::Toggle> All(PO::Description("Enable all features"sv));
+  PO::Option<PO::Toggle> PropMutGlobals(
+      PO::Description("Disable Import/Export of mutable globals proposal"sv));
+  PO::Option<PO::Toggle> PropNonTrapF2IConvs(PO::Description(
+      "Disable Non-trapping float-to-int conversions proposal"sv));
+  PO::Option<PO::Toggle> PropSignExtendOps(
+      PO::Description("Disable Sign-extension operators proposal"sv));
+  PO::Option<PO::Toggle> PropMultiValue(
+      PO::Description("Disable Multi-value proposal"sv));
+  PO::Option<PO::Toggle> PropBulkMemOps(
+      PO::Description("Disable Bulk memory operations proposal"sv));
+  PO::Option<PO::Toggle> PropRefTypes(
+      PO::Description("Disable Reference types proposal"sv));
+  PO::Option<PO::Toggle> PropSIMD(PO::Description("Enable SIMD proposal"sv));
+  PO::Option<PO::Toggle> PropAll(PO::Description("Enable all features"sv));
 
   PO::List<int> MemLim(
       PO::Description(
@@ -68,10 +76,14 @@ int main(int Argc, const char *Argv[]) {
            .add_option("reactor"sv, Reactor)
            .add_option("dir"sv, Dir)
            .add_option("env"sv, Env)
-           .add_option("disable-bulk-memory"sv, BulkMemoryOperations)
-           .add_option("disable-reference-types"sv, ReferenceTypes)
-           .add_option("enable-simd"sv, SIMD)
-           .add_option("enable-all"sv, All)
+           .add_option("disable-import-export-mut-globals"sv, PropMutGlobals)
+           .add_option("disable-non-trap-float-to-int"sv, PropNonTrapF2IConvs)
+           .add_option("disable-sign-extension-operators"sv, PropSignExtendOps)
+           .add_option("disable-multi-value"sv, PropMultiValue)
+           .add_option("disable-bulk-memory"sv, PropBulkMemOps)
+           .add_option("disable-reference-types"sv, PropRefTypes)
+           .add_option("enable-simd"sv, PropSIMD)
+           .add_option("enable-all"sv, PropAll)
            .add_option("memory-page-limit"sv, MemLim)
            .add_option("allow-command"sv, AllowCmd)
            .add_option("allow-command-all"sv, AllowCmdAll)
@@ -90,16 +102,28 @@ int main(int Argc, const char *Argv[]) {
   putenv(EnvTFVLogLevel);
 
   WasmEdge::Configure Conf;
-  if (BulkMemoryOperations.value()) {
+  if (PropMutGlobals.value()) {
+    Conf.removeProposal(WasmEdge::Proposal::ImportExportMutGlobals);
+  }
+  if (PropNonTrapF2IConvs.value()) {
+    Conf.removeProposal(WasmEdge::Proposal::NonTrapFloatToIntConversions);
+  }
+  if (PropSignExtendOps.value()) {
+    Conf.removeProposal(WasmEdge::Proposal::SignExtensionOperators);
+  }
+  if (PropMultiValue.value()) {
+    Conf.removeProposal(WasmEdge::Proposal::MultiValue);
+  }
+  if (PropBulkMemOps.value()) {
     Conf.removeProposal(WasmEdge::Proposal::BulkMemoryOperations);
   }
-  if (ReferenceTypes.value()) {
+  if (PropRefTypes.value()) {
     Conf.removeProposal(WasmEdge::Proposal::ReferenceTypes);
   }
-  if (SIMD.value()) {
+  if (PropSIMD.value()) {
     Conf.addProposal(WasmEdge::Proposal::SIMD);
   }
-  if (All.value()) {
+  if (PropAll.value()) {
     Conf.addProposal(WasmEdge::Proposal::SIMD);
   }
   if (MemLim.value().size() > 0) {
@@ -169,7 +193,7 @@ int main(int Argc, const char *Argv[]) {
     const auto InitFunc = "_initialize"s;
 
     bool HasInit = false;
-    WasmEdge::Runtime::Instance::FType FuncType;
+    WasmEdge::AST::FunctionType FuncType;
 
     for (const auto &Func : VM.getFunctionList()) {
       if (Func.first == InitFunc) {
@@ -188,8 +212,9 @@ int main(int Argc, const char *Argv[]) {
     std::vector<WasmEdge::ValVariant> FuncArgs;
     std::vector<WasmEdge::ValType> FuncArgTypes;
     for (size_t I = 0;
-         I < FuncType.Params.size() && I + 1 < Args.value().size(); ++I) {
-      switch (FuncType.Params[I]) {
+         I < FuncType.getParamTypes().size() && I + 1 < Args.value().size();
+         ++I) {
+      switch (FuncType.getParamTypes()[I]) {
       case WasmEdge::ValType::I32: {
         const uint32_t Value =
             static_cast<uint32_t>(std::stol(Args.value()[I + 1]));
@@ -221,9 +246,9 @@ int main(int Argc, const char *Argv[]) {
         break;
       }
     }
-    if (FuncType.Params.size() + 1 < Args.value().size()) {
-      for (size_t I = FuncType.Params.size() + 1; I < Args.value().size();
-           ++I) {
+    if (FuncType.getParamTypes().size() + 1 < Args.value().size()) {
+      for (size_t I = FuncType.getParamTypes().size() + 1;
+           I < Args.value().size(); ++I) {
         const uint64_t Value =
             static_cast<uint64_t>(std::stoll(Args.value()[I]));
         FuncArgs.emplace_back(Value);
@@ -233,19 +258,19 @@ int main(int Argc, const char *Argv[]) {
 
     if (auto Result = VM.execute(FuncName, FuncArgs, FuncArgTypes)) {
       /// Print results.
-      for (size_t I = 0; I < FuncType.Returns.size(); ++I) {
-        switch (FuncType.Returns[I]) {
+      for (size_t I = 0; I < Result->size(); ++I) {
+        switch ((*Result)[I].second) {
         case WasmEdge::ValType::I32:
-          std::cout << (*Result)[I].get<uint32_t>() << '\n';
+          std::cout << (*Result)[I].first.get<uint32_t>() << '\n';
           break;
         case WasmEdge::ValType::I64:
-          std::cout << (*Result)[I].get<uint64_t>() << '\n';
+          std::cout << (*Result)[I].first.get<uint64_t>() << '\n';
           break;
         case WasmEdge::ValType::F32:
-          std::cout << (*Result)[I].get<float>() << '\n';
+          std::cout << (*Result)[I].first.get<float>() << '\n';
           break;
         case WasmEdge::ValType::F64:
-          std::cout << (*Result)[I].get<double>() << '\n';
+          std::cout << (*Result)[I].first.get<double>() << '\n';
           break;
         /// TODO: FuncRef and ExternRef
         default:
