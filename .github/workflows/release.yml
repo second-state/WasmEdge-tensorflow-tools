@@ -58,8 +58,8 @@ jobs:
           cmake -Bbuild -DCMAKE_BUILD_TYPE=Release .
           cmake --build build
           cd build/tools
-          tar -zcvf WasmEdge-tf-tools.tar.gz show-tflite-tensor wasmedge-tensorflow wasmedge-tensorflow-lite wasmedgec-tensorflow download_dependencies_all.sh download_dependencies_tf.sh download_dependencies_tflite.sh
-          tar Jcvf WasmEdge-tf-tools.tar.xz show-tflite-tensor wasmedge-tensorflow wasmedge-tensorflow-lite wasmedgec-tensorflow download_dependencies_all.sh download_dependencies_tf.sh download_dependencies_tflite.sh
+          tar -zcvf WasmEdge-tf-tools.tar.gz show-tflite-tensor wasmedge-tensorflow wasmedge-tensorflow-lite
+          tar Jcvf WasmEdge-tf-tools.tar.xz show-tflite-tensor wasmedge-tensorflow wasmedge-tensorflow-lite
           cd ../..
           mv build/tools/WasmEdge-tf-tools.tar.gz WasmEdge-tf-tools.tar.gz
           mv build/tools/WasmEdge-tf-tools.tar.xz WasmEdge-tf-tools.tar.xz
