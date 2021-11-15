@@ -4,18 +4,13 @@ The [WasmEdge](https://github.com/WasmEdge/WasmEdge) (formerly `SSVM`) is a high
 
 ## Getting Started
 
-### Install the WasmEdge-Tensorflow-Tools dependency
+### Install the WasmEdge-Tensorflow-Tools and dependencies
 
 ```bash
-wget -qO- https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -e all -v 0.9.0-rc.2
+wget -qO- https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -e all -v 0.9.0-rc.3
 ```
 
-### Install WasmEdge-Tensorflow-Tools
-
-```bash
-wget https://github.com/second-state/WasmEdge-tensorflow-tools/releases/download/0.9.0-rc.2/WasmEdge-tensorflow-tools-0.9.0-rc.2-manylinux2014_x86_64.tar.gz
-tar -zxvf WasmEdge-tensorflow-tools-0.9.0-rc.2-manylinux2014_x86_64.tar.gz
-```
+### Example
 
 We provide a simple tool for showing the tensors information of TensorFlow-Lite models.
 Take the [bird v1 tflite model](https://github.com/second-state/wasm-learning/blob/master/rust/birds_v1/lite-model_aiy_vision_classifier_birds_V1_3.tflite) for example.
@@ -46,7 +41,7 @@ Output tensor nums: 1
 ```bash
 $ git clone https://github.com/second-state/WasmEdge-tensorflow-tools.git
 $ cd WasmEdge-tensorflow-tools
-$ git checkout 0.9.0-rc.1
+$ git checkout 0.9.0-rc.3
 ```
 
 ### Check Dependencies
