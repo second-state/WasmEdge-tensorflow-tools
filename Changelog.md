@@ -1,3 +1,13 @@
+### 0.9.0-rc.5 (2021-11-30)
+
+This is the host function extension for [WasmEdge](https://github.com/WasmEdge/WasmEdge).
+Please refer to the [WasmEdge 0.9.0-rc.5](https://github.com/WasmEdge/WasmEdge/releases/tag/0.9.0-rc.5) for more details.
+
+Features:
+
+* Update the `WasmEdge` dependency to `0.9.0-rc.5`.
+* Remove the tool `wasmedger-tensorflow`. Please use `wasmedgec` in [WasmEdge](https://github.com/WasmEdge/WasmEdge) project instead.
+
 ### 0.9.0-rc.4 (2021-11-23)
 
 This is the host function extension for [WasmEdge](https://github.com/WasmEdge/WasmEdge).
