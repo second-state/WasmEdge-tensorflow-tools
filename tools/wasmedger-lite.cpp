@@ -20,7 +20,7 @@ int main(int Argc, const char *Argv[]) {
   using namespace std::literals;
 
   std::ios::sync_with_stdio(false);
-  WasmEdge::Log::setErrorLoggingLevel();
+  WasmEdge::Log::setInfoLoggingLevel();
 
   PO::Option<std::string> SoName(PO::Description("Wasm or so file"sv),
                                  PO::MetaVar("WASM_OR_SO"sv));
@@ -55,8 +55,17 @@ int main(int Argc, const char *Argv[]) {
       PO::Description("Disable Bulk memory operations proposal"sv));
   PO::Option<PO::Toggle> PropRefTypes(
       PO::Description("Disable Reference types proposal"sv));
-  PO::Option<PO::Toggle> PropSIMD(PO::Description("Enable SIMD proposal"sv));
+  PO::Option<PO::Toggle> PropSIMD(PO::Description("Disable SIMD proposal"sv));
   PO::Option<PO::Toggle> PropAll(PO::Description("Enable all features"sv));
+
+  PO::Option<PO::Toggle> ConfEnableInstructionCounting(PO::Description(
+      "Enable generating code for counting Wasm instructions executed."sv));
+  PO::Option<PO::Toggle> ConfEnableGasMeasuring(PO::Description(
+      "Enable generating code for counting gas burned during execution."sv));
+  PO::Option<PO::Toggle> ConfEnableTimeMeasuring(PO::Description(
+      "Enable generating code for counting time during execution."sv));
+  PO::Option<PO::Toggle> ConfEnableAllStatistics(PO::Description(
+      "Enable generating code for all statistics options include instruction counting, gas measuring, and execution time"sv));
 
   PO::List<int> MemLim(
       PO::Description(
@@ -76,13 +85,18 @@ int main(int Argc, const char *Argv[]) {
            .add_option("reactor"sv, Reactor)
            .add_option("dir"sv, Dir)
            .add_option("env"sv, Env)
+           .add_option("enable-instruction-count"sv,
+                       ConfEnableInstructionCounting)
+           .add_option("enable-gas-measuring"sv, ConfEnableGasMeasuring)
+           .add_option("enable-time-measuring"sv, ConfEnableTimeMeasuring)
+           .add_option("enable-all-statistics"sv, ConfEnableAllStatistics)
            .add_option("disable-import-export-mut-globals"sv, PropMutGlobals)
            .add_option("disable-non-trap-float-to-int"sv, PropNonTrapF2IConvs)
            .add_option("disable-sign-extension-operators"sv, PropSignExtendOps)
            .add_option("disable-multi-value"sv, PropMultiValue)
            .add_option("disable-bulk-memory"sv, PropBulkMemOps)
            .add_option("disable-reference-types"sv, PropRefTypes)
-           .add_option("enable-simd"sv, PropSIMD)
+           .add_option("disable-simd"sv, PropSIMD)
            .add_option("enable-all"sv, PropAll)
            .add_option("memory-page-limit"sv, MemLim)
            .add_option("allow-command"sv, AllowCmd)
@@ -121,14 +135,29 @@ int main(int Argc, const char *Argv[]) {
     Conf.removeProposal(WasmEdge::Proposal::ReferenceTypes);
   }
   if (PropSIMD.value()) {
-    Conf.addProposal(WasmEdge::Proposal::SIMD);
+    Conf.removeProposal(WasmEdge::Proposal::SIMD);
   }
-  if (PropAll.value()) {
-    Conf.addProposal(WasmEdge::Proposal::SIMD);
-  }
+  /// Left for the future proposals.
+  /// if (PropAll.value()) {
+  /// }
   if (MemLim.value().size() > 0) {
     Conf.getRuntimeConfigure().setMaxMemoryPage(
         static_cast<uint32_t>(MemLim.value().back()));
+  }
+  if (ConfEnableAllStatistics.value()) {
+    Conf.getStatisticsConfigure().setInstructionCounting(true);
+    Conf.getStatisticsConfigure().setCostMeasuring(true);
+    Conf.getStatisticsConfigure().setTimeMeasuring(true);
+  } else {
+    if (ConfEnableInstructionCounting.value()) {
+      Conf.getStatisticsConfigure().setInstructionCounting(true);
+    }
+    if (ConfEnableGasMeasuring.value()) {
+      Conf.getStatisticsConfigure().setCostMeasuring(true);
+    }
+    if (ConfEnableTimeMeasuring.value()) {
+      Conf.getStatisticsConfigure().setTimeMeasuring(true);
+    }
   }
 
   Conf.addHostRegistration(WasmEdge::HostRegistration::Wasi);
