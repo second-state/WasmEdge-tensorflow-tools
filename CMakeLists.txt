@@ -41,7 +41,7 @@ option(WASMEDGE_TENSORFLOW_BUILD_SHARED_LIB "Generate the libwasmedge-image_c sh
 include(FetchContent)
 FetchContent_Declare(
   wasmedgetensorflowdeps
-  URL      https://github.com/second-state/WasmEdge-tensorflow-deps/releases/download/0.9.0-rc.5/WasmEdge-tensorflow-deps-TF-0.9.0-rc.5-manylinux2014_x86_64.tar.gz
+  URL      https://github.com/second-state/WasmEdge-tensorflow-deps/releases/download/0.9.0/WasmEdge-tensorflow-deps-TF-0.9.0-manylinux2014_x86_64.tar.gz
   URL_HASH SHA256=de0ad0baee9911515e5025906c73e39a885afea6dd9767ea7b3503d97b7afe8f
 )
 FetchContent_GetProperties(wasmedgetensorflowdeps)
@@ -58,7 +58,7 @@ if (NOT wasmedgetensorflowdeps_POPULATED)
 endif ()
 FetchContent_Declare(
   wasmedgetensorflowdepslite
-  URL      https://github.com/second-state/WasmEdge-tensorflow-deps/releases/download/0.9.0-rc.5/WasmEdge-tensorflow-deps-TFLite-0.9.0-rc.5-manylinux2014_x86_64.tar.gz
+  URL      https://github.com/second-state/WasmEdge-tensorflow-deps/releases/download/0.9.0/WasmEdge-tensorflow-deps-TFLite-0.9.0-manylinux2014_x86_64.tar.gz
   URL_HASH SHA256=43b2a782efb58b047c6d33f64d7ac711b24426959f91287d910edb8937c11dea
 )
 FetchContent_GetProperties(wasmedgetensorflowdepslite)
@@ -82,7 +82,7 @@ if(NOT WASMEDGE_CORE_PATH)
   FetchContent_Declare(
     wasmedge
     GIT_REPOSITORY https://github.com/WasmEdge/WasmEdge.git
-    GIT_TAG 0.9.0-rc.5
+    GIT_TAG 0.9.0
   )
 
   FetchContent_GetProperties(wasmedge)
@@ -118,7 +118,7 @@ if(NOT WASMEDGE_IMAGE_PATH)
   FetchContent_Declare(
     wasmedge_image
     GIT_REPOSITORY https://github.com/second-state/WasmEdge-image.git
-    GIT_TAG 0.9.0-rc.5
+    GIT_TAG 0.9.0
   )
 
   FetchContent_GetProperties(wasmedge_image)
@@ -154,7 +154,7 @@ if(NOT WASMEDGE_TENSORFLOW_PATH)
   FetchContent_Declare(
     wasmedge_tensorflow
     GIT_REPOSITORY https://github.com/second-state/WasmEdge-tensorflow.git
-    GIT_TAG 0.9.0-rc.5
+    GIT_TAG 0.9.0
   )
 
   FetchContent_GetProperties(wasmedge_tensorflow)
