@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
+// SPDX-FileCopyrightText: 2019-2022 Second State INC
+
 #include "common/configure.h"
 #include "common/filesystem.h"
 #include "common/types.h"
@@ -56,6 +58,8 @@ int main(int Argc, const char *Argv[]) {
   PO::Option<PO::Toggle> PropRefTypes(
       PO::Description("Disable Reference types proposal"sv));
   PO::Option<PO::Toggle> PropSIMD(PO::Description("Disable SIMD proposal"sv));
+  PO::Option<PO::Toggle> PropMultiMem(
+      PO::Description("Enable Multiple memories proposal"sv));
   PO::Option<PO::Toggle> PropAll(PO::Description("Enable all features"sv));
 
   PO::Option<PO::Toggle> ConfEnableInstructionCounting(PO::Description(
@@ -66,6 +70,16 @@ int main(int Argc, const char *Argv[]) {
       "Enable generating code for counting time during execution."sv));
   PO::Option<PO::Toggle> ConfEnableAllStatistics(PO::Description(
       "Enable generating code for all statistics options include instruction counting, gas measuring, and execution time"sv));
+
+  PO::Option<uint64_t> TimeLim(
+      PO::Description(
+          "Limitation of maximum time(in milliseconds) for execution, default value is 0 for no limitations"sv),
+      PO::MetaVar("TIMEOUT"sv), PO::DefaultValue<uint64_t>(0));
+
+  PO::List<int> GasLim(
+      PO::Description(
+          "Limitation of execution gas. Upper bound can be specified as --gas-limit `GAS_LIMIT`."sv),
+      PO::MetaVar("GAS_LIMIT"sv));
 
   PO::List<int> MemLim(
       PO::Description(
@@ -97,7 +111,10 @@ int main(int Argc, const char *Argv[]) {
            .add_option("disable-bulk-memory"sv, PropBulkMemOps)
            .add_option("disable-reference-types"sv, PropRefTypes)
            .add_option("disable-simd"sv, PropSIMD)
+           .add_option("enable-multi-memory"sv, PropMultiMem)
            .add_option("enable-all"sv, PropAll)
+           .add_option("time-limit"sv, TimeLim)
+           .add_option("gas-limit"sv, GasLim)
            .add_option("memory-page-limit"sv, MemLim)
            .add_option("allow-command"sv, AllowCmd)
            .add_option("allow-command-all"sv, AllowCmdAll)
@@ -137,9 +154,23 @@ int main(int Argc, const char *Argv[]) {
   if (PropSIMD.value()) {
     Conf.removeProposal(WasmEdge::Proposal::SIMD);
   }
-  /// Left for the future proposals.
-  /// if (PropAll.value()) {
-  /// }
+  if (PropMultiMem.value()) {
+    Conf.addProposal(WasmEdge::Proposal::MultiMemories);
+  }
+  if (PropAll.value()) {
+    Conf.addProposal(WasmEdge::Proposal::MultiMemories);
+  }
+
+  std::optional<std::chrono::system_clock::time_point> Timeout;
+  if (TimeLim.value() > 0) {
+    Timeout = std::chrono::system_clock::now() +
+              std::chrono::milliseconds(TimeLim.value());
+  }
+  if (GasLim.value().size() > 0) {
+    Conf.getStatisticsConfigure().setCostMeasuring(true);
+    Conf.getStatisticsConfigure().setCostLimit(
+        static_cast<uint32_t>(GasLim.value().back()));
+  }
   if (MemLim.value().size() > 0) {
     Conf.getRuntimeConfigure().setMaxMemoryPage(
         static_cast<uint32_t>(MemLim.value().back()));
@@ -194,7 +225,13 @@ int main(int Argc, const char *Argv[]) {
 
   if (!Reactor.value()) {
     // command mode
-    if (auto Result = VM.runWasmFile(InputPath.u8string(), "_start");
+    auto AsyncResult = VM.asyncRunWasmFile(InputPath.u8string(), "_start");
+    if (Timeout.has_value()) {
+      if (!AsyncResult.waitUntil(*Timeout)) {
+        AsyncResult.cancel();
+      }
+    }
+    if (auto Result = AsyncResult.get();
         Result || Result.error() == WasmEdge::ErrCode::Terminated) {
       return static_cast<int>(WasiMod->getEnv().getExitCode());
     } else {
@@ -233,7 +270,13 @@ int main(int Argc, const char *Argv[]) {
     }
 
     if (HasInit) {
-      if (auto Result = VM.execute(InitFunc); !Result) {
+      auto AsyncResult = VM.asyncExecute(InitFunc);
+      if (Timeout.has_value()) {
+        if (!AsyncResult.waitUntil(*Timeout)) {
+          AsyncResult.cancel();
+        }
+      }
+      if (auto Result = AsyncResult.get(); WasmEdge::unlikely(!Result)) {
         return EXIT_FAILURE;
       }
     }
@@ -285,7 +328,13 @@ int main(int Argc, const char *Argv[]) {
       }
     }
 
-    if (auto Result = VM.execute(FuncName, FuncArgs, FuncArgTypes)) {
+    auto AsyncResult = VM.asyncExecute(FuncName, FuncArgs, FuncArgTypes);
+    if (Timeout.has_value()) {
+      if (!AsyncResult.waitUntil(*Timeout)) {
+        AsyncResult.cancel();
+      }
+    }
+    if (auto Result = AsyncResult.get()) {
       /// Print results.
       for (size_t I = 0; I < Result->size(); ++I) {
         switch ((*Result)[I].second) {
