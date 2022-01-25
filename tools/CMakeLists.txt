@@ -7,40 +7,44 @@ configure_file(
   ${CMAKE_CURRENT_BINARY_DIR}/libtensorflowlite_c.so
   COPYONLY
 )
-message(STATUS "Copying shared library to directory ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow.so.2.6.0")
-configure_file(
-  ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow.so.2.6.0
-  ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow.so.2.6.0
-  COPYONLY
-)
-message(STATUS "Copying shared library to directory ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow_framework.so.2.6.0")
-configure_file(
-  ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_framework.so.2.6.0
-  ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow_framework.so.2.6.0
-  COPYONLY
-)
-execute_process(
-  COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow.so.2.6.0 ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow.so.2
-  COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow.so.2 ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow.so
-  COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_framework.so.2.6.0 ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow_framework.so.2
-  COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_framework.so.2 ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow_framework.so
-)
+if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
+  message(STATUS "Copying shared library to directory ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow.so.2.6.0")
+  configure_file(
+    ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow.so.2.6.0
+    ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow.so.2.6.0
+    COPYONLY
+  )
+  message(STATUS "Copying shared library to directory ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow_framework.so.2.6.0")
+  configure_file(
+    ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_framework.so.2.6.0
+    ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow_framework.so.2.6.0
+    COPYONLY
+  )
+  execute_process(
+    COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow.so.2.6.0 ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow.so.2
+    COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow.so.2 ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow.so
+    COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_framework.so.2.6.0 ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow_framework.so.2
+    COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_framework.so.2 ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow_framework.so
+  )
+endif()
 
-add_executable(wasmedge-tensorflow
-  wasmedger.cpp
-)
+if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
+  add_executable(wasmedge-tensorflow
+    wasmedger.cpp
+  )
 
-target_link_libraries(wasmedge-tensorflow
-  PRIVATE
-  ${TENSORFLOW_LIB}
-  ${TENSORFLOW_LITE_LIB}
-  wasmedgeHostModuleWasmEdgeTensorflow
-  wasmedgeHostModuleWasmEdgeTensorflowLite
-  wasmedgeHostModuleWasmEdgeImage
-  wasmedgeVM
-  dl
-  pthread
-)
+  target_link_libraries(wasmedge-tensorflow
+    PRIVATE
+    ${TENSORFLOW_LIB}
+    ${TENSORFLOW_LITE_LIB}
+    wasmedgeHostModuleWasmEdgeTensorflow
+    wasmedgeHostModuleWasmEdgeTensorflowLite
+    wasmedgeHostModuleWasmEdgeImage
+    wasmedgeVM
+    dl
+    pthread
+  )
+endif()
 
 add_executable(wasmedge-tensorflow-lite
   wasmedger-lite.cpp
