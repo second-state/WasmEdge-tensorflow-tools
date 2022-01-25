@@ -13,6 +13,7 @@ Features:
   * Users can use the `--enable-multi-memory` to enable the proposal.
 * Enabled the gas limitation.
   * Users can use the `--gas-limit` to assign the limitation of costs.
+* Added the Linux aarch64 support for `wasmedge-tensorflowlite`.
 
 ### 0.9.1-alpha.1 (2022-01-13)
 
