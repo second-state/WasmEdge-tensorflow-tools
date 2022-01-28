@@ -32,7 +32,7 @@ set(CMAKE_ENABLE_EXPORTS ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 set(CMAKE_SKIP_RPATH ON)
-set(WASMEDGE_DEPS_VERSION "0.9.1-beta.1")
+set(WASMEDGE_DEPS_VERSION "0.9.1-beta.2")
 
 # List of WasmEdge options
 option(WASMEDGE_BUILD_TOOLS "Generate wasmedge and wasmedgec tools." OFF)
@@ -47,7 +47,14 @@ option(WASMEDGE_TENSORFLOW_BUILD_SHARED_LIB "Generate the libwasmedge-image_c sh
 # Tools not need the libwasmedge-tensorflow_c.so.
 
 # Clone required shared libraries
-if (UNIX)
+if (ANDROID)
+  if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
+    set(WASMEDGE_TENSORFLOW_SYSTEM_NAME "android_aarch64")
+    set(WASMEDGE_TENSORFLOW_DEPS_TFLITE_HASH "102ad87a6cd7794a72ca3504a046b8960c928ba44c69b1a0587cdb21fe76588f")
+  elseif()
+    message(FATAL_ERROR "Unsupported architecture: ${CMAKE_SYSTEM_PROCESSOR}")
+  endif()
+elseif(UNIX)
   if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
     set(WASMEDGE_TENSORFLOW_SYSTEM_NAME "manylinux2014_x86_64")
     set(WASMEDGE_TENSORFLOW_DEPS_TF_HASH "de0ad0baee9911515e5025906c73e39a885afea6dd9767ea7b3503d97b7afe8f")
@@ -64,8 +71,8 @@ endif()
 
 include(FetchContent)
 
-# Tensorflow has only x86_64.
-if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
+# Tensorflow has only manylinux2014_x86_64.
+if(WASMEDGE_TENSORFLOW_SYSTEM_NAME STREQUAL "manylinux2014_x86_64")
   FetchContent_Declare(
     wasmedgetensorflowdeps
     URL      "https://github.com/second-state/WasmEdge-tensorflow-deps/releases/download/${WASMEDGE_DEPS_VERSION}/WasmEdge-tensorflow-deps-TF-${WASMEDGE_DEPS_VERSION}-${WASMEDGE_TENSORFLOW_SYSTEM_NAME}.tar.gz"
@@ -97,8 +104,8 @@ if (NOT wasmedgetensorflowdepslite_POPULATED)
   message(STATUS "Downloading dependency: libtensorflowlite - done")
 endif ()
 
-# Tensorflow has only x86_64.
-if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
+# Tensorflow has only manylinux2014_x86_64.
+if(WASMEDGE_TENSORFLOW_SYSTEM_NAME STREQUAL "manylinux2014_x86_64")
   set(TENSORFLOW_LIB
     "${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow.so.2.6.0"
     "${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_framework.so.2.6.0"
