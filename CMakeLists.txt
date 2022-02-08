@@ -32,11 +32,10 @@ set(CMAKE_ENABLE_EXPORTS ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 set(CMAKE_SKIP_RPATH ON)
-set(WASMEDGE_DEPS_VERSION "0.9.1-beta.2")
 
 # List of WasmEdge options
 option(WASMEDGE_BUILD_TOOLS "Generate wasmedge and wasmedgec tools." OFF)
-# Tools will build in this project, hence the wasmedge and wasmedgec are not needed.
+# Tools will be built in this project, hence the wasmedge and wasmedgec are not needed.
 option(WASMEDGE_BUILD_AOT_RUNTIME "Enable WasmEdge LLVM-based ahead of time compilation runtime." OFF)
 # Tools not need the AOT compiler.
 option(WASMEDGE_BUILD_SHARED_LIB "Generate the WasmEdge shared library." OFF)
@@ -46,8 +45,13 @@ option(WASMEDGE_IMAGE_BUILD_SHARED_LIB "Generate the libwasmedge-image_c shared 
 option(WASMEDGE_TENSORFLOW_BUILD_SHARED_LIB "Generate the libwasmedge-image_c shared library." OFF)
 # Tools not need the libwasmedge-tensorflow_c.so.
 
+# WasmEdge dependencies versions
+if(NOT WASMEDGE_DEPS_VERSION)
+  set(WASMEDGE_DEPS_VERSION "0.9.1-rc.1")
+endif()
+
 # Clone required shared libraries
-if (ANDROID)
+if(ANDROID)
   if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
     set(WASMEDGE_TENSORFLOW_SYSTEM_NAME "android_aarch64")
     set(WASMEDGE_TENSORFLOW_DEPS_TFLITE_HASH "102ad87a6cd7794a72ca3504a046b8960c928ba44c69b1a0587cdb21fe76588f")
@@ -223,12 +227,12 @@ else()
   endif()
 endif()
 
-message(STATUS "Set WasmEdge-core source path: ${WASMEDGE_CORE_PATH}")
-message(STATUS "Set WasmEdge-core binary path: ${WASMEDGE_CORE_BIN_PATH}")
-message(STATUS "Set WasmEdge-image source path: ${WASMEDGE_IMAGE_PATH}")
-message(STATUS "Set WasmEdge-image binary path: ${WASMEDGE_IMAGE_BIN_PATH}")
-message(STATUS "Set WasmEdge-tensorflow source path: ${WASMEDGE_TENSORFLOW_PATH}")
-message(STATUS "Set WasmEdge-tensorflow binary path: ${WASMEDGE_TENSORFLOW_BIN_PATH}")
+message(STATUS "WasmEdge-tensorflow-tools: Set WasmEdge-core source path: ${WASMEDGE_CORE_PATH}")
+message(STATUS "WasmEdge-tensorflow-tools: Set WasmEdge-core binary path: ${WASMEDGE_CORE_BIN_PATH}")
+message(STATUS "WasmEdge-tensorflow-tools: Set WasmEdge-image source path: ${WASMEDGE_IMAGE_PATH}")
+message(STATUS "WasmEdge-tensorflow-tools: Set WasmEdge-image binary path: ${WASMEDGE_IMAGE_BIN_PATH}")
+message(STATUS "WasmEdge-tensorflow-tools: Set WasmEdge-tensorflow source path: ${WASMEDGE_TENSORFLOW_PATH}")
+message(STATUS "WasmEdge-tensorflow-tools: Set WasmEdge-tensorflow binary path: ${WASMEDGE_TENSORFLOW_BIN_PATH}")
 
 include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}/include

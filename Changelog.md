@@ -1,3 +1,21 @@
+### 0.9.1-rc.1 (2022-02-09)
+
+This is the host function extension for [WasmEdge](https://github.com/WasmEdge/WasmEdge).
+Please refer to the [WasmEdge 0.9.1-rc.1](https://github.com/WasmEdge/WasmEdge/releases/tag/0.9.1-rc.1) for more details.
+
+Features:
+
+* Added the copyright text.
+* Update the `WasmEdge` dependency to `0.9.1-rc.1`.
+* Supported the interruptible execution.
+  * Users can use the `--time-limit` to assign timeout value.
+* Supported the WASM `multi-memories` proposal.
+  * Users can use the `--enable-multi-memory` to enable the proposal.
+* Enabled the gas limitation.
+  * Users can use the `--gas-limit` to assign the limitation of costs.
+* Added the Linux aarch64 support for `wasmedge-tensorflowlite`.
+* Added the Android aarch64 support for `wasmedge-tensorflowlite`.
+
 ### 0.9.1-beta.2 (2022-01-28)
 
 This is the host function extension for [WasmEdge](https://github.com/WasmEdge/WasmEdge).

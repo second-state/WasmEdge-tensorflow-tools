@@ -7,7 +7,7 @@ The [WasmEdge](https://github.com/WasmEdge/WasmEdge) (formerly `SSVM`) is a high
 ### Install the WasmEdge-Tensorflow-Tools and dependencies
 
 ```bash
-wget -qO- https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -e all -v 0.9.1-beta.2
+wget -qO- https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -e all -v 0.9.1-rc.1
 ```
 
 ### Example
@@ -39,9 +39,9 @@ Output tensor nums: 1
 ### Get Source Code
 
 ```bash
-$ git clone https://github.com/second-state/WasmEdge-tensorflow-tools.git
-$ cd WasmEdge-tensorflow-tools
-$ git checkout 0.9.1-beta.2
+git clone https://github.com/second-state/WasmEdge-tensorflow-tools.git
+cd WasmEdge-tensorflow-tools
+git checkout 0.9.1-rc.1
 ```
 
 ### Check Dependencies
@@ -61,7 +61,7 @@ Repository on dockerhub `wasmedge/wasmedge`
 You can use the following commands to get our latest docker image:
 
 ```bash
-$ docker pull wasmedge/wasmedge # Equals to wasmedge/wasmedge:latest
+docker pull wasmedge/wasmedge # Equals to wasmedge/wasmedge:latest
 ```
 
 The followings are available tags of docker images to build and run `WasmEdge-Tensorflow-Tools`:
@@ -77,22 +77,22 @@ The followings are available tags of docker images to build and run `WasmEdge-Te
 
 ```bash
 # Tools and libraries
-$ sudo apt install -y \
-	software-properties-common \
-	cmake \
-	libboost-all-dev
+sudo apt install -y \
+    software-properties-common \
+    cmake \
+    libboost-all-dev
 
 # And you will need to install llvm for wasmedgec tool
-$ sudo apt install -y \
-	llvm-12-dev \
-	liblld-12-dev
+sudo apt install -y \
+    llvm-12-dev \
+    liblld-12-dev
 
 # WasmEdge supports both clang++ and g++ compilers
 # You can choose one of them for building this project
 # If you prefer GCC
-$ sudo apt install -y gcc g++
+sudo apt install -y gcc g++
 # Else you can choose clang
-$ sudo apt install -y clang-12
+sudo apt install -y clang-12
 ```
 
 ### Build WasmEdge-Tensorflow-Tools
@@ -105,17 +105,19 @@ We provides two options for setting up the `WasmEdge-core`:
 
 ```bash
 # After pulling our WasmEdge docker image
-$ docker run -it --rm \
+docker run -it --rm \
     -v <path/to/your/WasmEdge-tensorflow/source/folder>:/root/WasmEdge-tensorflow-tools \
     wasmedge/wasmedge:latest
-(docker)$ cd /root/WasmEdge-tensorflow-tools
-(docker)$ mkdir -p build && cd build
+# In docker
+cd /root/WasmEdge-tensorflow-tools
+mkdir -p build && cd build
 ```
 
 #### Option 1. Use built-in CMakeLists to get WasmEdge-Core, WasmEdge-image, and WasmEdge-tensorflow (Recommended)
 
 ```bash
-(docker)$ cmake -DCMAKE_BUILD_TYPE=Release .. && make
+# In docker
+cmake -DCMAKE_BUILD_TYPE=Release .. && make
 ```
 
 #### Option 2. Use specific version of WasmEdge-Core by giving WASMEDGE_CORE_PATH
@@ -123,11 +125,12 @@ $ docker run -it --rm \
 You can also specify the `WasmEdge-image` by assigning `WASMEDGE_IMAGE_PATH`, and the `WasmEdge-tensorflow` by assigning `WASMEDGE_TENSORFLOW_PATH`. The dependencies not assigned will be fetched with the default versions automatically.
 
 ```bash
-(docker)$ cmake \
-          -DWASMEDGE_CORE_PATH=<path/to/WasmEdge/source> \
-          -DWASMEDGE_IMAGE_PATH=<path/to/WasmEdge-image/source> \
-          -DWASMEDGE_TENSORFLOW_PATH=<path/to/WasmEdge-tensorflow/source> \
-          -DCMAKE_BUILD_TYPE=Release .. && make
+# In docker
+cmake \
+    -DWASMEDGE_CORE_PATH=<path/to/WasmEdge/source> \
+    -DWASMEDGE_IMAGE_PATH=<path/to/WasmEdge-image/source> \
+    -DWASMEDGE_TENSORFLOW_PATH=<path/to/WasmEdge-tensorflow/source> \
+    -DCMAKE_BUILD_TYPE=Release .. && make
 ```
 
 The executable `build/tools/wasmedge-tensorflow` is the runner for executing WASM or compiled WASM.
