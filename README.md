@@ -7,7 +7,7 @@ The [WasmEdge](https://github.com/WasmEdge/WasmEdge) (formerly `SSVM`) is a high
 ### Install the WasmEdge-Tensorflow-Tools and dependencies
 
 ```bash
-wget -qO- https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -e all -v 0.9.1
+wget -qO- https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -e all -v 0.10.0-alpha.1
 ```
 
 ### Example
@@ -41,7 +41,7 @@ Output tensor nums: 1
 ```bash
 git clone https://github.com/second-state/WasmEdge-tensorflow-tools.git
 cd WasmEdge-tensorflow-tools
-git checkout 0.9.1
+git checkout 0.10.0-alpha.1
 ```
 
 ### Check Dependencies

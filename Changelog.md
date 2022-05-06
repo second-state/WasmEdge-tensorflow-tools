@@ -1,6 +1,18 @@
+### 0.10.0-alpha.1 (2022-05-06)
+
+This is the tools extension for [WasmEdge](https://github.com/WasmEdge/WasmEdge).
+Please refer to the [WasmEdge 0.10.0-alpha.1](https://github.com/WasmEdge/WasmEdge/releases/tag/0.10.0-alpha.1) for more details.
+
+Features:
+
+* Update the `WasmEdge` dependency to `0.10.0-alpha.1`.
+* Added the Darwin x86_64 support for `wasmedge-tensorflow` and `wasmedge-tensorflow-lite`.
+* Supported the WASM `tail-call` proposal.
+  * Users can use the `--enable-tail-call` to enable the proposal.
+
 ### 0.9.1 (2022-02-10)
 
-This is the host function extension for [WasmEdge](https://github.com/WasmEdge/WasmEdge).
+This is the tools extension for [WasmEdge](https://github.com/WasmEdge/WasmEdge).
 Please refer to the [WasmEdge 0.9.1](https://github.com/WasmEdge/WasmEdge/releases/tag/0.9.1) for more details.
 
 Features:
@@ -18,7 +30,7 @@ Features:
 
 ### 0.9.0 (2021-12-09)
 
-This is the host function extension for [WasmEdge](https://github.com/WasmEdge/WasmEdge).
+This is the tools extension for [WasmEdge](https://github.com/WasmEdge/WasmEdge).
 Please refer to the [WasmEdge 0.9.0](https://github.com/WasmEdge/WasmEdge/releases/tag/0.9.0) for more details.
 
 Features:
@@ -28,7 +40,7 @@ Features:
 
 ### 0.8.2 (2021-09-06)
 
-This is the host function extension for [WasmEdge](https://github.com/WasmEdge/WasmEdge).
+This is the tools extension for [WasmEdge](https://github.com/WasmEdge/WasmEdge).
 Please refer to the [WasmEdge 0.8.2](https://github.com/WasmEdge/WasmEdge/releases/tag/0.8.2) for more details.
 
 Features:
@@ -39,7 +51,7 @@ Features:
 
 ### 0.8.1 (2021-06-22)
 
-This is the host function extension for [WasmEdge](https://github.com/WasmEdge/WasmEdge).
+This is the tools extension for [WasmEdge](https://github.com/WasmEdge/WasmEdge).
 Please refer to the [WasmEdge 0.8.1](https://github.com/WasmEdge/WasmEdge/releases/tag/0.8.1) for more details.
 
 Features:
