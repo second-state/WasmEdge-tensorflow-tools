@@ -70,6 +70,7 @@ if(WASMEDGE_TENSORFLOW_SYSTEM_NAME STREQUAL "manylinux2014_x86_64" OR WASMEDGE_T
     wasmedgeHostModuleWasmEdgeTensorflow
     wasmedgeHostModuleWasmEdgeTensorflowLite
     wasmedgeHostModuleWasmEdgeImage
+    wasmedgePO
     wasmedgeVM
     dl
   )
@@ -89,6 +90,7 @@ target_link_libraries(wasmedge-tensorflow-lite
   ${WASMEDGE_TENSORFLOW_DEPS_TFLITE_LIB}
   wasmedgeHostModuleWasmEdgeTensorflowLite
   wasmedgeHostModuleWasmEdgeImage
+  wasmedgePO
   wasmedgeVM
   dl
 )
