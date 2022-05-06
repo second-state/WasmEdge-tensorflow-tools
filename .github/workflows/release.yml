@@ -106,6 +106,7 @@ jobs:
 
   build_darwin_x86_64:
     name: Darwin x86_64 platform
+    needs: create
     runs-on: macos-latest
     steps:
     - name: Checkout code
