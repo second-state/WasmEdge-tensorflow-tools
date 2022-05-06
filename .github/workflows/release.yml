@@ -26,6 +26,7 @@ jobs:
       - name: Get version
         id: prep
         run: |
+          git config --global --add safe.directory $(pwd)
           echo ::set-output name=version::$(git describe --tag)
       - name: Create Release
         id: create_release
@@ -38,6 +39,7 @@ jobs:
           body_path: .CurrentChangelog.md
           draft: true
           prerelease: true
+
   build_and_upload_manylinux:
     strategy:
       matrix:
@@ -102,6 +104,43 @@ jobs:
         asset_name: WasmEdge-tensorflow-tools-${{ needs.create.outputs.version }}-${{ matrix.docker_tag }}.tar.xz
         asset_content_type: application/x-xz
 
+  build_darwin_x86_64:
+    name: MacOS x86_64
+    runs-on: macos-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Build WasmEdge-image for MacOS x86_64
+      run: |
+        brew install llvm ninja boost cmake
+        export PATH="/usr/local/opt/llvm/bin:$PATH"
+        export LDFLAGS="-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib"
+        export CPPFLAGS="-I/usr/local/opt/llvm/include"
+        export CC=clang
+        export CXX=clang++
+        if ! cmake -Bbuild -GNinja -DCMAKE_BUILD_TYPE=Release -DWASMEDGE_BUILD_AOT_RUNTIME=OFF; then
+            echo === CMakeOutput.log ===
+            cat build/CMakeFiles/CMakeOutput.log
+            echo === CMakeError.log ===
+            cat build/CMakeFiles/CMakeError.log
+            exit 1
+        fi
+        cmake --build build
+        cd build/tools
+        tar -zcvf WasmEdge-tf-tools.tar.gz show-tflite-tensor wasmedge-tensorflow wasmedge-tensorflow-lite
+        cd ../..
+        mv build/tools/WasmEdge-tf-tools.tar.gz WasmEdge-tf-tools.tar.gz
+        ls -alF
+    - name: Upload darwin x86_64 tar.gz package
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create.outputs.upload_url }}
+        asset_path: WasmEdge-tf-tools.tar.gz
+        asset_name: WasmEdge-tensorflow-tools-${{ needs.create.outputs.version }}-darwin_x86_64.tar.gz
+        asset_content_type: application/x-gzip
+
   build_and_upload_android:
     name: Android platforms
     needs: create
@@ -111,7 +150,6 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-
     - name: Install dependency
       run: |
         apt update && apt install -y unzip
@@ -122,7 +160,6 @@ jobs:
         cp -r cmake-3.22.2-linux-x86_64/share /usr/local
         curl -sLO https://dl.google.com/android/repository/android-ndk-r23b-linux.zip
         unzip -q android-ndk-r23b-linux.zip
-
     - name: Build WasmEdge-tensorflow-tools for Android
       run: |
         export ANDROID_NDK_HOME=$(pwd)/android-ndk-r23b/
