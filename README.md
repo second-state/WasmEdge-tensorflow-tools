@@ -7,7 +7,7 @@ The [WasmEdge](https://github.com/WasmEdge/WasmEdge) (formerly `SSVM`) is a high
 ### Install the WasmEdge-Tensorflow-Tools and dependencies
 
 ```bash
-wget -qO- https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -e all -v 0.10.0-alpha.1
+wget -qO- https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -e all -v 0.10.0-alpha.2
 ```
 
 ### Example
@@ -41,7 +41,7 @@ Output tensor nums: 1
 ```bash
 git clone https://github.com/second-state/WasmEdge-tensorflow-tools.git
 cd WasmEdge-tensorflow-tools
-git checkout 0.10.0-alpha.1
+git checkout 0.10.0-alpha.2
 ```
 
 ### Check Dependencies
@@ -49,7 +49,6 @@ git checkout 0.10.0-alpha.1
 WasmEdge will try to use the latest LLVM release to create our nightly build.
 If you want to build from source, you may need to install these dependencies by yourself or using our docker images which provides several Linux distribution support.
 
-- LLVM 12.0.0 (>= 10.0.0), because LLVM 13 has breaking changes, WasmEdge project is not support LLVM 13 now.
 - GCC 11.1.0 (>= 9.4.0)
 
 ### Prepare the Environment
@@ -81,11 +80,6 @@ sudo apt install -y \
     software-properties-common \
     cmake \
     libboost-all-dev
-
-# And you will need to install llvm for wasmedgec tool
-sudo apt install -y \
-    llvm-12-dev \
-    liblld-12-dev
 
 # WasmEdge supports both clang++ and g++ compilers
 # You can choose one of them for building this project
