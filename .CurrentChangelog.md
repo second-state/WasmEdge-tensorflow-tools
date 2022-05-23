@@ -1,11 +1,11 @@
-### 0.10.0-alpha.2 (2022-05-20)
+### 0.10.0-rc.1 (2022-05-24)
 
 This is the tools extension for [WasmEdge](https://github.com/WasmEdge/WasmEdge).
-Please refer to the [WasmEdge 0.10.0-alpha.2](https://github.com/WasmEdge/WasmEdge/releases/tag/0.10.0-alpha.2) for more details.
+Please refer to the [WasmEdge 0.10.0-rc.1](https://github.com/WasmEdge/WasmEdge/releases/tag/0.10.0-rc.1) for more details.
 
 Features:
 
-* Update the `WasmEdge` dependency to `0.10.0-alpha.2`.
+* Update the `WasmEdge` dependency to `0.10.0-rc.1`.
 * Added the Darwin x86_64 support for `wasmedge-tensorflow` and `wasmedge-tensorflow-lite`.
 * Supported the WASM `tail-call` proposal.
   * Users can use the `--enable-tail-call` to enable the proposal.

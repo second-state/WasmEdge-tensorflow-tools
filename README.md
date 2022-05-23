@@ -1,13 +1,13 @@
 # WasmEdge Tools for Tensorflow Extension
 
-The [WasmEdge](https://github.com/WasmEdge/WasmEdge) (formerly `SSVM`) is a high performance WebAssembly runtime optimized for server side applications. This project provides WasmEdge tools accessing with [Tensorflow C library](https://www.tensorflow.org/install/lang_c).
+The [WasmEdge](https://github.com/WasmEdge/WasmEdge) is a high performance WebAssembly runtime optimized for server side applications. This project provides WasmEdge tools accessing with [Tensorflow C library](https://www.tensorflow.org/install/lang_c).
 
 ## Getting Started
 
 ### Install the WasmEdge-Tensorflow-Tools and dependencies
 
 ```bash
-wget -qO- https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -e all -v 0.10.0-alpha.2
+wget -qO- https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -e all -v 0.10.0-rc.1
 ```
 
 ### Example
@@ -41,7 +41,7 @@ Output tensor nums: 1
 ```bash
 git clone https://github.com/second-state/WasmEdge-tensorflow-tools.git
 cd WasmEdge-tensorflow-tools
-git checkout 0.10.0-alpha.2
+git checkout 0.10.0-rc.1
 ```
 
 ### Check Dependencies
