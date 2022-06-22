@@ -107,12 +107,13 @@ jobs:
   build_darwin_x86_64:
     name: Darwin x86_64 platform
     needs: create
-    runs-on: macos-latest
+    runs-on: macos-10.15
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
     - name: Build WasmEdge-tensorflow-tools for Darwin x86_64
       run: |
+        brew update
         brew install llvm ninja boost cmake
         export PATH="/usr/local/opt/llvm/bin:$PATH"
         export LDFLAGS="-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib"
