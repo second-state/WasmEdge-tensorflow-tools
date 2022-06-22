@@ -74,6 +74,8 @@ int main(int Argc, const char *Argv[]) {
       PO::Description("Enable Tail-call proposal"sv));
   PO::Option<PO::Toggle> PropExtendConst(
       PO::Description("Enable Extended-const proposal"sv));
+  PO::Option<PO::Toggle> PropThreads(
+      PO::Description("Enable Threads proposal"sv));
   PO::Option<PO::Toggle> PropAll(PO::Description("Enable all features"sv));
 
   PO::Option<PO::Toggle> ConfEnableInstructionCounting(PO::Description(
@@ -123,6 +125,7 @@ int main(int Argc, const char *Argv[]) {
       .add_option("enable-multi-memory"sv, PropMultiMem)
       .add_option("enable-tail-call"sv, PropTailCall)
       .add_option("enable-extended-const"sv, PropExtendConst)
+      .add_option("enable-threads"sv, PropThreads)
       .add_option("enable-all"sv, PropAll)
       .add_option("time-limit"sv, TimeLim)
       .add_option("gas-limit"sv, GasLim)
@@ -176,10 +179,14 @@ int main(int Argc, const char *Argv[]) {
   if (PropExtendConst.value()) {
     Conf.addProposal(WasmEdge::Proposal::ExtendedConst);
   }
+  if (PropThreads.value()) {
+    Conf.addProposal(WasmEdge::Proposal::Threads);
+  }
   if (PropAll.value()) {
     Conf.addProposal(WasmEdge::Proposal::MultiMemories);
     Conf.addProposal(WasmEdge::Proposal::TailCall);
     Conf.addProposal(WasmEdge::Proposal::ExtendedConst);
+    Conf.addProposal(WasmEdge::Proposal::Threads);
   }
 
   std::optional<std::chrono::system_clock::time_point> Timeout;
@@ -218,6 +225,7 @@ int main(int Argc, const char *Argv[]) {
 
   Conf.addHostRegistration(WasmEdge::HostRegistration::Wasi);
   Conf.addHostRegistration(WasmEdge::HostRegistration::WasmEdge_Process);
+  Conf.addHostRegistration(WasmEdge::HostRegistration::WasiNN);
   const auto InputPath = std::filesystem::absolute(SoName.value());
   WasmEdge::VM::VM VM(Conf);
   WasmEdge::Host::WasmEdgeTensorflowFakeModule TensorflowMod;
