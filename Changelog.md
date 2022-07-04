@@ -1,3 +1,14 @@
+### 0.10.1-alpha.2 (2022-07-04)
+
+This is the tools extension for [WasmEdge](https://github.com/WasmEdge/WasmEdge).
+Please refer to the [WasmEdge 0.10.1-alpha.2](https://github.com/WasmEdge/WasmEdge/releases/tag/0.10.1-alpha.2) for more details.
+
+Features:
+
+* Update the `WasmEdge` dependency to `0.10.1-alpha.2`.
+* Supported the WASM `threads` proposal.
+  * Users can use the `--enable-threads` to enable the proposal.
+
 ### 0.10.0 (2022-05-26)
 
 This is the tools extension for [WasmEdge](https://github.com/WasmEdge/WasmEdge).
