@@ -226,6 +226,12 @@ int main(int Argc, const char *Argv[]) {
   Conf.addHostRegistration(WasmEdge::HostRegistration::Wasi);
   Conf.addHostRegistration(WasmEdge::HostRegistration::WasmEdge_Process);
   Conf.addHostRegistration(WasmEdge::HostRegistration::WasiNN);
+  Conf.addHostRegistration(WasmEdge::HostRegistration::WasiCrypto_Common);
+  Conf.addHostRegistration(
+      WasmEdge::HostRegistration::WasiCrypto_AsymmetricCommon);
+  Conf.addHostRegistration(WasmEdge::HostRegistration::WasiCrypto_Kx);
+  Conf.addHostRegistration(WasmEdge::HostRegistration::WasiCrypto_Signatures);
+  Conf.addHostRegistration(WasmEdge::HostRegistration::WasiCrypto_Symmetric);
   const auto InputPath = std::filesystem::absolute(SoName.value());
   WasmEdge::VM::VM VM(Conf);
   WasmEdge::Host::WasmEdgeTensorflowModule TensorflowMod;
