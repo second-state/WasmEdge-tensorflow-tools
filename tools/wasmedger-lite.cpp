@@ -261,7 +261,7 @@ int main(int Argc, const char *Argv[]) {
       }
     }
     if (auto Result = AsyncResult.get();
-        Result || Result.error() == WasmEdge::ErrCode::Terminated) {
+        Result || Result.error() == WasmEdge::ErrCode::Value::Terminated) {
       return static_cast<int>(WasiMod->getEnv().getExitCode());
     } else {
       return EXIT_FAILURE;
