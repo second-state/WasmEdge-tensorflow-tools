@@ -36,7 +36,7 @@ jobs:
     - name: Prepare docker env
       id: docker_env
       run: |
-        echo ::set-output name=docker_image::wasmedge/wasmedge:release-${{ needs.get_version.outputs.version }}-tensorflow
+        echo ::set-output name=docker_image::wasmedge/slim-tf:${{ needs.get_version.outputs.version }}
         echo ::set-output name=created::$(date -u +'%Y-%m-%dT%H:%M:%SZ')
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
