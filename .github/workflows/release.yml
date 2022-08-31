@@ -115,9 +115,7 @@ jobs:
       run: |
         brew update
         brew install llvm ninja boost cmake
-        export PATH="/usr/local/opt/llvm/bin:$PATH"
-        export LDFLAGS="-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib"
-        export CPPFLAGS="-I/usr/local/opt/llvm/include"
+        export LLVM_DIR="/usr/local/opt/llvm/lib/cmake"
         export CC=clang
         export CXX=clang++
         if ! cmake -Bbuild -GNinja -DCMAKE_BUILD_TYPE=Release -DWASMEDGE_BUILD_AOT_RUNTIME=OFF; then
