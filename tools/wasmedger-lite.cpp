@@ -3,8 +3,11 @@
 
 #include "common/configure.h"
 #include "common/filesystem.h"
+#include "common/int128.h"
+#include "common/log.h"
 #include "common/types.h"
 #include "common/version.h"
+#include "driver/tool.h"
 #include "host/wasi/wasimodule.h"
 #include "plugin/plugin.h"
 #include "po/argument_parser.h"
@@ -24,14 +27,14 @@
 #include <vector>
 
 int main(int Argc, const char *Argv[]) {
-  namespace PO = WasmEdge::PO;
+  using namespace WasmEdge;
   using namespace std::literals;
 
   std::ios::sync_with_stdio(false);
-  WasmEdge::Log::setInfoLoggingLevel();
+  Log::setInfoLoggingLevel();
 
-  for (const auto &Path : WasmEdge::Plugin::Plugin::getDefaultPluginPaths()) {
-    WasmEdge::Plugin::Plugin::load(Path);
+  for (const auto &Path : Plugin::Plugin::getDefaultPluginPaths()) {
+    Plugin::Plugin::load(Path);
   }
 
   PO::Option<std::string> SoName(PO::Description("Wasm or so file"sv),
@@ -132,13 +135,13 @@ int main(int Argc, const char *Argv[]) {
       .add_option("memory-page-limit"sv, MemLim)
       .add_option("forbidden-plugin"sv, ForbiddenPlugins);
 
-  WasmEdge::Plugin::Plugin::addPluginOptions(Parser);
+  Plugin::Plugin::addPluginOptions(Parser);
 
-  if (!Parser.parse(Argc, Argv)) {
+  if (!Parser.parse(stdout, Argc, Argv)) {
     return EXIT_FAILURE;
   }
   if (Parser.isVersion()) {
-    std::cout << Argv[0] << " version "sv << WasmEdge::kVersionString << '\n';
+    std::cout << Argv[0] << " version "sv << kVersionString << '\n';
     return EXIT_SUCCESS;
   }
 
@@ -148,45 +151,45 @@ int main(int Argc, const char *Argv[]) {
   putenv(EnvTFLogLevel);
   putenv(EnvTFVLogLevel);
 
-  WasmEdge::Configure Conf;
+  Configure Conf;
   if (PropMutGlobals.value()) {
-    Conf.removeProposal(WasmEdge::Proposal::ImportExportMutGlobals);
+    Conf.removeProposal(Proposal::ImportExportMutGlobals);
   }
   if (PropNonTrapF2IConvs.value()) {
-    Conf.removeProposal(WasmEdge::Proposal::NonTrapFloatToIntConversions);
+    Conf.removeProposal(Proposal::NonTrapFloatToIntConversions);
   }
   if (PropSignExtendOps.value()) {
-    Conf.removeProposal(WasmEdge::Proposal::SignExtensionOperators);
+    Conf.removeProposal(Proposal::SignExtensionOperators);
   }
   if (PropMultiValue.value()) {
-    Conf.removeProposal(WasmEdge::Proposal::MultiValue);
+    Conf.removeProposal(Proposal::MultiValue);
   }
   if (PropBulkMemOps.value()) {
-    Conf.removeProposal(WasmEdge::Proposal::BulkMemoryOperations);
+    Conf.removeProposal(Proposal::BulkMemoryOperations);
   }
   if (PropRefTypes.value()) {
-    Conf.removeProposal(WasmEdge::Proposal::ReferenceTypes);
+    Conf.removeProposal(Proposal::ReferenceTypes);
   }
   if (PropSIMD.value()) {
-    Conf.removeProposal(WasmEdge::Proposal::SIMD);
+    Conf.removeProposal(Proposal::SIMD);
   }
   if (PropMultiMem.value()) {
-    Conf.addProposal(WasmEdge::Proposal::MultiMemories);
+    Conf.addProposal(Proposal::MultiMemories);
   }
   if (PropTailCall.value()) {
-    Conf.addProposal(WasmEdge::Proposal::TailCall);
+    Conf.addProposal(Proposal::TailCall);
   }
   if (PropExtendConst.value()) {
-    Conf.addProposal(WasmEdge::Proposal::ExtendedConst);
+    Conf.addProposal(Proposal::ExtendedConst);
   }
   if (PropThreads.value()) {
-    Conf.addProposal(WasmEdge::Proposal::Threads);
+    Conf.addProposal(Proposal::Threads);
   }
   if (PropAll.value()) {
-    Conf.addProposal(WasmEdge::Proposal::MultiMemories);
-    Conf.addProposal(WasmEdge::Proposal::TailCall);
-    Conf.addProposal(WasmEdge::Proposal::ExtendedConst);
-    Conf.addProposal(WasmEdge::Proposal::Threads);
+    Conf.addProposal(Proposal::MultiMemories);
+    Conf.addProposal(Proposal::TailCall);
+    Conf.addProposal(Proposal::ExtendedConst);
+    Conf.addProposal(Proposal::Threads);
   }
 
   std::optional<std::chrono::system_clock::time_point> Timeout;
@@ -223,27 +226,25 @@ int main(int Argc, const char *Argv[]) {
     Conf.addForbiddenPlugins(Name);
   }
 
-  Conf.addHostRegistration(WasmEdge::HostRegistration::Wasi);
-  Conf.addHostRegistration(WasmEdge::HostRegistration::WasmEdge_Process);
-  Conf.addHostRegistration(WasmEdge::HostRegistration::WasiNN);
-  Conf.addHostRegistration(WasmEdge::HostRegistration::WasiCrypto_Common);
-  Conf.addHostRegistration(
-      WasmEdge::HostRegistration::WasiCrypto_AsymmetricCommon);
-  Conf.addHostRegistration(WasmEdge::HostRegistration::WasiCrypto_Kx);
-  Conf.addHostRegistration(WasmEdge::HostRegistration::WasiCrypto_Signatures);
-  Conf.addHostRegistration(WasmEdge::HostRegistration::WasiCrypto_Symmetric);
+  Conf.addHostRegistration(HostRegistration::Wasi);
+  Conf.addHostRegistration(HostRegistration::WasmEdge_Process);
+  Conf.addHostRegistration(HostRegistration::WasiNN);
+  Conf.addHostRegistration(HostRegistration::WasiCrypto_Common);
+  Conf.addHostRegistration(HostRegistration::WasiCrypto_AsymmetricCommon);
+  Conf.addHostRegistration(HostRegistration::WasiCrypto_Kx);
+  Conf.addHostRegistration(HostRegistration::WasiCrypto_Signatures);
+  Conf.addHostRegistration(HostRegistration::WasiCrypto_Symmetric);
   const auto InputPath = std::filesystem::absolute(SoName.value());
-  WasmEdge::VM::VM VM(Conf);
-  WasmEdge::Host::WasmEdgeTensorflowFakeModule TensorflowMod;
-  WasmEdge::Host::WasmEdgeTensorflowLiteModule TensorflowLiteMod;
-  WasmEdge::Host::WasmEdgeImageModule ImageMod;
+  VM::VM VM(Conf);
+  Host::WasmEdgeTensorflowFakeModule TensorflowMod;
+  Host::WasmEdgeTensorflowLiteModule TensorflowLiteMod;
+  Host::WasmEdgeImageModule ImageMod;
   VM.registerModule(TensorflowMod);
   VM.registerModule(TensorflowLiteMod);
   VM.registerModule(ImageMod);
 
-  WasmEdge::Host::WasiModule *WasiMod =
-      dynamic_cast<WasmEdge::Host::WasiModule *>(
-          VM.getImportModule(WasmEdge::HostRegistration::Wasi));
+  Host::WasiModule *WasiMod = dynamic_cast<Host::WasiModule *>(
+      VM.getImportModule(HostRegistration::Wasi));
 
   WasiMod->getEnv().init(
       Dir.value(),
@@ -261,7 +262,7 @@ int main(int Argc, const char *Argv[]) {
       }
     }
     if (auto Result = AsyncResult.get();
-        Result || Result.error() == WasmEdge::ErrCode::Value::Terminated) {
+        Result || Result.error() == ErrCode::Value::Terminated) {
       return static_cast<int>(WasiMod->getEnv().getExitCode());
     } else {
       return EXIT_FAILURE;
@@ -288,7 +289,7 @@ int main(int Argc, const char *Argv[]) {
     const auto InitFunc = "_initialize"s;
 
     bool HasInit = false;
-    WasmEdge::AST::FunctionType FuncType;
+    AST::FunctionType FuncType;
 
     for (const auto &Func : VM.getFunctionList()) {
       if (Func.first == InitFunc) {
@@ -305,41 +306,41 @@ int main(int Argc, const char *Argv[]) {
           AsyncResult.cancel();
         }
       }
-      if (auto Result = AsyncResult.get(); WasmEdge::unlikely(!Result)) {
+      if (auto Result = AsyncResult.get(); unlikely(!Result)) {
         return EXIT_FAILURE;
       }
     }
 
-    std::vector<WasmEdge::ValVariant> FuncArgs;
-    std::vector<WasmEdge::ValType> FuncArgTypes;
+    std::vector<ValVariant> FuncArgs;
+    std::vector<ValType> FuncArgTypes;
     for (size_t I = 0;
          I < FuncType.getParamTypes().size() && I + 1 < Args.value().size();
          ++I) {
       switch (FuncType.getParamTypes()[I]) {
-      case WasmEdge::ValType::I32: {
+      case ValType::I32: {
         const uint32_t Value =
             static_cast<uint32_t>(std::stol(Args.value()[I + 1]));
         FuncArgs.emplace_back(Value);
-        FuncArgTypes.emplace_back(WasmEdge::ValType::I32);
+        FuncArgTypes.emplace_back(ValType::I32);
         break;
       }
-      case WasmEdge::ValType::I64: {
+      case ValType::I64: {
         const uint64_t Value =
             static_cast<uint64_t>(std::stoll(Args.value()[I + 1]));
         FuncArgs.emplace_back(Value);
-        FuncArgTypes.emplace_back(WasmEdge::ValType::I64);
+        FuncArgTypes.emplace_back(ValType::I64);
         break;
       }
-      case WasmEdge::ValType::F32: {
+      case ValType::F32: {
         const float Value = std::stof(Args.value()[I + 1]);
         FuncArgs.emplace_back(Value);
-        FuncArgTypes.emplace_back(WasmEdge::ValType::F32);
+        FuncArgTypes.emplace_back(ValType::F32);
         break;
       }
-      case WasmEdge::ValType::F64: {
+      case ValType::F64: {
         const double Value = std::stod(Args.value()[I + 1]);
         FuncArgs.emplace_back(Value);
-        FuncArgTypes.emplace_back(WasmEdge::ValType::F64);
+        FuncArgTypes.emplace_back(ValType::F64);
         break;
       }
       /// TODO: FuncRef and ExternRef
@@ -353,7 +354,7 @@ int main(int Argc, const char *Argv[]) {
         const uint64_t Value =
             static_cast<uint64_t>(std::stoll(Args.value()[I]));
         FuncArgs.emplace_back(Value);
-        FuncArgTypes.emplace_back(WasmEdge::ValType::F64);
+        FuncArgTypes.emplace_back(ValType::F64);
       }
     }
 
@@ -367,17 +368,20 @@ int main(int Argc, const char *Argv[]) {
       /// Print results.
       for (size_t I = 0; I < Result->size(); ++I) {
         switch ((*Result)[I].second) {
-        case WasmEdge::ValType::I32:
+        case ValType::I32:
           std::cout << (*Result)[I].first.get<uint32_t>() << '\n';
           break;
-        case WasmEdge::ValType::I64:
+        case ValType::I64:
           std::cout << (*Result)[I].first.get<uint64_t>() << '\n';
           break;
-        case WasmEdge::ValType::F32:
+        case ValType::F32:
           std::cout << (*Result)[I].first.get<float>() << '\n';
           break;
-        case WasmEdge::ValType::F64:
+        case ValType::F64:
           std::cout << (*Result)[I].first.get<double>() << '\n';
+          break;
+        case ValType::V128:
+          std::cout << (*Result)[I].first.get<uint128_t>() << '\n';
           break;
         /// TODO: FuncRef and ExternRef
         default:
