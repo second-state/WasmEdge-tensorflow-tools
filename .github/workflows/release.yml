@@ -114,8 +114,8 @@ jobs:
     - name: Build WasmEdge-tensorflow-tools for Darwin x86_64
       run: |
         brew update
-        brew install llvm ninja boost cmake
-        export LLVM_DIR="/usr/local/opt/llvm/lib/cmake"
+        brew install llvm@14 ninja boost cmake
+        export LLVM_DIR="/usr/local/opt/llvm@14/lib/cmake"
         export CC=clang
         export CXX=clang++
         if ! cmake -Bbuild -GNinja -DCMAKE_BUILD_TYPE=Release -DWASMEDGE_BUILD_AOT_RUNTIME=OFF; then
