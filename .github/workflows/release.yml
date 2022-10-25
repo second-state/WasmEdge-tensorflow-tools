@@ -49,7 +49,7 @@ jobs:
             docker_tag: manylinux2014_x86_64
             output_files: show-tflite-tensor wasmedge-tensorflow wasmedge-tensorflow-lite
           - name: manylinux2014 aarch64
-            host_runner: ARM64
+            host_runner: linux-arm64
             docker_tag: manylinux2014_aarch64
             output_files: show-tflite-tensor wasmedge-tensorflow-lite
     name: ${{ matrix.name }} platform
