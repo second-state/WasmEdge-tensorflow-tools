@@ -47,7 +47,7 @@ option(WASMEDGE_TENSORFLOW_BUILD_SHARED_LIB "Generate the libwasmedge-image_c sh
 
 # WasmEdge dependencies versions
 if(NOT WASMEDGE_DEPS_VERSION)
-  set(WASMEDGE_DEPS_VERSION "0.11.2-rc.2")
+  set(WASMEDGE_DEPS_VERSION "0.11.2-rc.3")
 endif()
 
 # Clone required shared libraries
