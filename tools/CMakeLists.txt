@@ -19,10 +19,10 @@ elseif(UNIX)
 endif()
 
 if(WASMEDGE_TENSORFLOW_SYSTEM_NAME STREQUAL "manylinux2014_x86_64")
-  message(STATUS "Copying shared library to directory ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow.so.2.6.0")
+  message(STATUS "Copying shared library to directory ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow_cc.so.2.6.0")
   configure_file(
-    ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow.so.2.6.0
-    ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow.so.2.6.0
+    ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_cc.so.2.6.0
+    ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow_cc.so.2.6.0
     COPYONLY
   )
   message(STATUS "Copying shared library to directory ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow_framework.so.2.6.0")
@@ -32,16 +32,16 @@ if(WASMEDGE_TENSORFLOW_SYSTEM_NAME STREQUAL "manylinux2014_x86_64")
     COPYONLY
   )
   execute_process(
-    COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow.so.2.6.0 ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow.so.2
-    COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow.so.2 ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow.so
+    COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_cc.so.2.6.0 ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow_cc.so.2
+    COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_cc.so.2 ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow_cc.so
     COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_framework.so.2.6.0 ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow_framework.so.2
     COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_framework.so.2 ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow_framework.so
   )
 elseif(WASMEDGE_TENSORFLOW_SYSTEM_NAME STREQUAL "darwin_x86_64")
-  message(STATUS "Copying shared library to directory ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow.2.6.0.dylib")
+  message(STATUS "Copying shared library to directory ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow_cc.2.6.0.dylib")
   configure_file(
-    ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow.2.6.0.dylib
-    ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow.2.6.0.dylib
+    ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_cc.2.6.0.dylib
+    ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow_cc.2.6.0.dylib
     COPYONLY
   )
   message(STATUS "Copying shared library to directory ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow_framework.2.6.0.dylib")
@@ -51,8 +51,8 @@ elseif(WASMEDGE_TENSORFLOW_SYSTEM_NAME STREQUAL "darwin_x86_64")
     COPYONLY
   )
   execute_process(
-    COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow.2.6.0.dylib ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow.2.dylib
-    COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow.2.dylib ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow.dylib
+    COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_cc.2.6.0.dylib ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow_cc.2.dylib
+    COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_cc.2.dylib ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow_cc.dylib
     COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_framework.2.6.0.dylib ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow_framework.2.dylib
     COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_framework.2.dylib ${CMAKE_CURRENT_BINARY_DIR}/libtensorflow_framework.dylib
   )

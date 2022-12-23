@@ -47,7 +47,7 @@ option(WASMEDGE_TENSORFLOW_BUILD_SHARED_LIB "Generate the libwasmedge-image_c sh
 
 # WasmEdge dependencies versions
 if(NOT WASMEDGE_DEPS_VERSION)
-  set(WASMEDGE_DEPS_VERSION "0.11.2")
+  set(WASMEDGE_DEPS_VERSION "0.12.0-alpha.1")
 endif()
 
 # Clone required shared libraries
@@ -61,7 +61,7 @@ if(ANDROID)
 elseif(APPLE)
   if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
     set(WASMEDGE_TENSORFLOW_SYSTEM_NAME "darwin_x86_64")
-    set(WASMEDGE_TENSORFLOW_DEPS_TF_HASH "df8720bb089528dd6930983d0ff23adbae75ad7b92451245702ce24002b5f3c4")
+    set(WASMEDGE_TENSORFLOW_DEPS_TF_HASH "c1906b81b5db7f6f4fefce3c825a240a92f0d897dee41e2e1b294c9173132f2d")
     set(WASMEDGE_TENSORFLOW_DEPS_TFLITE_HASH "2593772df440a768e79d87e74a860378f46fb0b7d1e7805879ab2ec26a093b57")
   else()
     message(FATAL_ERROR "Unsupported architecture: ${CMAKE_SYSTEM_PROCESSOR}")
@@ -69,7 +69,7 @@ elseif(APPLE)
 elseif(UNIX)
   if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
     set(WASMEDGE_TENSORFLOW_SYSTEM_NAME "manylinux2014_x86_64")
-    set(WASMEDGE_TENSORFLOW_DEPS_TF_HASH "de0ad0baee9911515e5025906c73e39a885afea6dd9767ea7b3503d97b7afe8f")
+    set(WASMEDGE_TENSORFLOW_DEPS_TF_HASH "8bc6f965194ea52f37f0862e7deb420e4bbc9bfdec7f04c727069ec6358b4c3d")
     set(WASMEDGE_TENSORFLOW_DEPS_TFLITE_HASH "43b2a782efb58b047c6d33f64d7ac711b24426959f91287d910edb8937c11dea")
   elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
     set(WASMEDGE_TENSORFLOW_SYSTEM_NAME "manylinux2014_aarch64")
@@ -96,15 +96,15 @@ if(WASMEDGE_TENSORFLOW_SYSTEM_NAME STREQUAL "manylinux2014_x86_64" OR WASMEDGE_T
     FetchContent_Populate(wasmedgetensorflowdeps)
     if(APPLE)
       execute_process(
-        COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow.2.6.0.dylib ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow.2.dylib
-        COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow.2.dylib ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow.dylib
+        COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_cc.2.6.0.dylib ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_cc.2.dylib
+        COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_cc.2.dylib ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_cc.dylib
         COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_framework.2.6.0.dylib ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_framework.2.dylib
         COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_framework.2.dylib ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_framework.dylib
       )
     else()
       execute_process(
-        COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow.so.2.6.0 ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow.so.2
-        COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow.so.2 ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow.so
+        COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_cc.so.2.6.0 ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_cc.so.2
+        COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_cc.so.2 ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_cc.so
         COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_framework.so.2.6.0 ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_framework.so.2
         COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_framework.so.2 ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_framework.so
       )
@@ -129,12 +129,12 @@ endif ()
 # Setup Tensorflow library. Tensorflow has only x86_64.
 if(WASMEDGE_TENSORFLOW_SYSTEM_NAME STREQUAL "manylinux2014_x86_64")
   set(WASMEDGE_TENSORFLOW_DEPS_TF_LIB
-    "${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow.so.2.6.0"
+    "${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_cc.so.2.6.0"
     "${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_framework.so.2.6.0"
   )
 elseif(WASMEDGE_TENSORFLOW_SYSTEM_NAME STREQUAL "darwin_x86_64")
   set(WASMEDGE_TENSORFLOW_DEPS_TF_LIB
-    "${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow.2.6.0.dylib"
+    "${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_cc.2.6.0.dylib"
     "${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_framework.2.6.0.dylib"
   )
 endif()

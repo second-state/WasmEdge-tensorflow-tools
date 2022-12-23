@@ -65,7 +65,6 @@ jobs:
       uses: actions/checkout@v2
     - name: Build WasmEdge-tensorflow-tools for darwin x86_64
       run: |
-        brew update
         brew install llvm@14 ninja boost cmake
         export LLVM_DIR="/usr/local/opt/llvm@14/lib/cmake"
         export CC=clang
