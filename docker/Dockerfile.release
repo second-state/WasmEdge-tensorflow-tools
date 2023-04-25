@@ -3,9 +3,10 @@ ARG VERSION
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt update && \
-    apt install -y curl git netbase && \
-    curl -sSf https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -p /usr/local -e all -v $VERSION
+    apt install -y curl git netbase python && \
+    curl -sSf https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -p /usr/local -e all -v $VERSION && \
+    apt purge python && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 CMD ["/usr/local/bin/wasmedge"]
-
