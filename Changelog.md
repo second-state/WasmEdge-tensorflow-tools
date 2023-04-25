@@ -1,11 +1,11 @@
-### 0.12.0-alpha.2 (2023-02-25)
+### 0.12.0 (2023-04-25)
 
 This is the tools extension for [WasmEdge](https://github.com/WasmEdge/WasmEdge).
-Please refer to the [WasmEdge 0.12.0-alpha.2](https://github.com/WasmEdge/WasmEdge/releases/tag/0.12.0-alpha.2) for more details.
+Please refer to the [WasmEdge 0.12.0](https://github.com/WasmEdge/WasmEdge/releases/tag/0.12.0) for more details.
 
 Features:
 
-* Update the `WasmEdge` dependency to `0.12.0-alpha.2`.
+* Update the `WasmEdge` dependency to `0.12.0`.
 * Update to use the `libtensorflow_cc` C++ shared library.
 
 ### 0.11.2 (2022-11-03)
