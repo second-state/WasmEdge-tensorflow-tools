@@ -29,29 +29,34 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: Install requirements
       run: |
-        curl -sL https://raw.githubusercontent.com/docker-slim/docker-slim/master/scripts/install-dockerslim.sh | sudo -E bash -
+        curl -sL https://raw.githubusercontent.com/slimtoolkit/slim/master/scripts/install-slim.sh | sudo -E bash -
     - name: Prepare docker env
       id: docker_env
       run: |
         echo ::set-output name=docker_image::wasmedge/slim-tf:${{ needs.get_version.outputs.version }}
         echo ::set-output name=created::$(date -u +'%Y-%m-%dT%H:%M:%SZ')
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
+      uses: docker/setup-buildx-action@v2
     - name: Login to DockerHub
-      uses: docker/login-action@v1
+      uses: docker/login-action@v2
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
-    - name: Run docker-slim
+    - name: Run slim
       run: |
-        docker-slim build \
+        slim build \
           --dockerfile Dockerfile.release \
           --dockerfile-context docker \
           --tag ${{ steps.docker_env.outputs.docker_image }} \
           --http-probe-off \
+          --include-bin /usr/lib/x86_64-linux-gnu/libnss_compat.so.2 \
+          --include-bin /usr/lib/x86_64-linux-gnu/libnss_dns.so.2 \
+          --include-bin /usr/lib/x86_64-linux-gnu/libnss_files.so.2 \
+          --include-bin /usr/lib/x86_64-linux-gnu/libresolv.so.2 \
+          --include-path /etc/services \
           --include-bin /usr/local/bin/wasmedge \
           --include-bin /usr/local/bin/wasmedgec \
           --include-bin /usr/local/bin/wasmedge-tensorflow-lite \
