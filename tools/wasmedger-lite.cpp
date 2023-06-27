@@ -3,7 +3,6 @@
 
 #include "common/configure.h"
 #include "common/filesystem.h"
-#include "common/int128.h"
 #include "common/log.h"
 #include "common/types.h"
 #include "common/version.h"
@@ -43,14 +42,18 @@ int main(int Argc, const char *Argv[]) {
                              PO::MetaVar("ARG"sv));
 
   PO::Option<PO::Toggle> Reactor(PO::Description(
-      "Enable reactor mode. Reactor mode calls `_initialize` if exported."));
+      "Enable reactor mode. Reactor mode calls `_initialize` if exported."sv));
 
   PO::List<std::string> Dir(
       PO::Description(
-          "Binding directories into WASI virtual filesystem. Each directories "
-          "can specified as --dir `guest_path:host_path`, where `guest_path` "
-          "specifies the path that will correspond to `host_path` for calls "
-          "like `fopen` in the guest."sv),
+          "Binding directories into WASI virtual filesystem. Each directory "
+          "can be specified as --dir `host_path`. You can also map a guest "
+          "directory to a host directory by --dir `guest_path:host_path`, "
+          "where `guest_path` specifies the path that will correspond to "
+          "`host_path` for calls like `fopen` in the guest."
+          "The default permission is `readwrite`, however, you can use "
+          "--dir `guest_path:host_path:readonly` to make the mapping "
+          "directory become a read only mode."sv),
       PO::MetaVar("PREOPEN_DIRS"sv));
 
   PO::List<std::string> Env(
@@ -290,7 +293,7 @@ int main(int Argc, const char *Argv[]) {
 
   if (EnterCommandMode) {
     // command mode
-    auto AsyncResult = VM.asyncExecute("_start");
+    auto AsyncResult = VM.asyncExecute("_start"sv);
     if (Timeout.has_value()) {
       if (!AsyncResult.waitUntil(*Timeout)) {
         AsyncResult.cancel();
@@ -300,7 +303,8 @@ int main(int Argc, const char *Argv[]) {
         Result || Result.error() == ErrCode::Value::Terminated) {
       return static_cast<int>(WasiMod->getEnv().getExitCode());
     } else {
-      return EXIT_FAILURE;
+      // It indicates that the execution of wasm has been aborted
+      return 128 + SIGABRT;
     }
   } else {
     // reactor mode
@@ -333,7 +337,8 @@ int main(int Argc, const char *Argv[]) {
         }
       }
       if (auto Result = AsyncResult.get(); unlikely(!Result)) {
-        return EXIT_FAILURE;
+        // It indicates that the execution of wasm has been aborted
+        return 128 + SIGABRT;
       }
     }
 
@@ -380,7 +385,7 @@ int main(int Argc, const char *Argv[]) {
         const uint64_t Value =
             static_cast<uint64_t>(std::stoll(Args.value()[I]));
         FuncArgs.emplace_back(Value);
-        FuncArgTypes.emplace_back(ValType::F64);
+        FuncArgTypes.emplace_back(ValType::I64);
       }
     }
 
@@ -416,7 +421,8 @@ int main(int Argc, const char *Argv[]) {
       }
       return EXIT_SUCCESS;
     } else {
-      return EXIT_FAILURE;
+      // It indicates that the execution of wasm has been aborted
+      return 128 + SIGABRT;
     }
   }
 }

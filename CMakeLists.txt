@@ -45,35 +45,44 @@ option(WASMEDGE_IMAGE_BUILD_SHARED_LIB "Generate the libwasmedge-image_c shared 
 option(WASMEDGE_TENSORFLOW_BUILD_SHARED_LIB "Generate the libwasmedge-image_c shared library." OFF)
 # Tools not need the libwasmedge-tensorflow_c.so.
 
+# WasmEdge repositories versions
+if(NOT WASMEDGE_REPO_VERSION)
+  set(WASMEDGE_REPO_VERSION "0.13.0-alpha.1")
+endif()
 # WasmEdge dependencies versions
 if(NOT WASMEDGE_DEPS_VERSION)
-  set(WASMEDGE_DEPS_VERSION "0.12.1")
+  set(WASMEDGE_DEPS_VERSION "TF-2.12.0-CC")
 endif()
 
 # Clone required shared libraries
 if(ANDROID)
   if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
     set(WASMEDGE_TENSORFLOW_SYSTEM_NAME "android_aarch64")
-    set(WASMEDGE_TENSORFLOW_DEPS_TFLITE_HASH "a25dafad049cbc998c1f9682c57aec22b2fe5799eeffdd4ed19793a734cde8a4")
+    set(WASMEDGE_TENSORFLOW_DEPS_TFLITE_HASH "2d7dcd7381479d9ffc0968ea66e24a5207b404c7f2ccbdddec6f2a4d6f9813f2")
   elseif()
     message(FATAL_ERROR "Unsupported architecture: ${CMAKE_SYSTEM_PROCESSOR}")
   endif()
 elseif(APPLE)
   if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
     set(WASMEDGE_TENSORFLOW_SYSTEM_NAME "darwin_x86_64")
-    set(WASMEDGE_TENSORFLOW_DEPS_TF_HASH "c1906b81b5db7f6f4fefce3c825a240a92f0d897dee41e2e1b294c9173132f2d")
-    set(WASMEDGE_TENSORFLOW_DEPS_TFLITE_HASH "2593772df440a768e79d87e74a860378f46fb0b7d1e7805879ab2ec26a093b57")
+    set(WASMEDGE_TENSORFLOW_DEPS_TF_HASH "60da72a093cf65d733ca2cb9f331356a1637acfe1645050809bd0cf056b1520f")
+    set(WASMEDGE_TENSORFLOW_DEPS_TFLITE_HASH "04b58f4b97220633a8e299a63aba73d9a1f228904081e7d5f18e78d1e38d5f00")
+  elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
+    set(WASMEDGE_TENSORFLOW_SYSTEM_NAME "darwin_arm64")
+    set(WASMEDGE_TENSORFLOW_DEPS_TF_HASH "2ede6d96c7563eb826331469d7d0a1f51c9b1ca311f4398d841f679a5b96705a")
+    set(WASMEDGE_TENSORFLOW_DEPS_TFLITE_HASH "cb4562a80ac2067bdabe2464b80e129b9d8ddc6d97ad1a2d7215e06a1e1e8cda")
   else()
     message(FATAL_ERROR "Unsupported architecture: ${CMAKE_SYSTEM_PROCESSOR}")
   endif()
 elseif(UNIX)
   if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
     set(WASMEDGE_TENSORFLOW_SYSTEM_NAME "manylinux2014_x86_64")
-    set(WASMEDGE_TENSORFLOW_DEPS_TF_HASH "8bc6f965194ea52f37f0862e7deb420e4bbc9bfdec7f04c727069ec6358b4c3d")
-    set(WASMEDGE_TENSORFLOW_DEPS_TFLITE_HASH "43b2a782efb58b047c6d33f64d7ac711b24426959f91287d910edb8937c11dea")
+    set(WASMEDGE_TENSORFLOW_DEPS_TF_HASH "266465acd642a9d2d80e56c93aa0a255597bfb3034a826bb2225e61f2bebe2e2")
+    set(WASMEDGE_TENSORFLOW_DEPS_TFLITE_HASH "110a06bcda1fdc3e744b1728157b66981e235de130f3a34755684e6adcf08341")
   elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
     set(WASMEDGE_TENSORFLOW_SYSTEM_NAME "manylinux2014_aarch64")
-    set(WASMEDGE_TENSORFLOW_DEPS_TFLITE_HASH "1f47dcd05f32907848253e0f4b0eb3a6276802dae41d2b7de61214b75ba02395")
+    set(WASMEDGE_TENSORFLOW_DEPS_TF_HASH "9c15a3aeeda614c9677fe8980d8fa2cd9600072c4701b8a8189225855b9ca1a8")
+    set(WASMEDGE_TENSORFLOW_DEPS_TFLITE_HASH "672b81d3f4b5a6c25dc9bbc3b8c6ac1c0357cfab8105b2a85b8bb8c0b59afcb4")
   else()
     message(FATAL_ERROR "Unsupported architecture: ${CMAKE_SYSTEM_PROCESSOR}")
   endif()
@@ -83,8 +92,8 @@ endif()
 
 include(FetchContent)
 
-# Fetch Tensorflow library. Tensorflow has only x86_64.
-if(WASMEDGE_TENSORFLOW_SYSTEM_NAME STREQUAL "manylinux2014_x86_64" OR WASMEDGE_TENSORFLOW_SYSTEM_NAME STREQUAL "darwin_x86_64")
+# Fetch Tensorflow library.
+if(WASMEDGE_TENSORFLOW_DEPS_TF_HASH)
   FetchContent_Declare(
     wasmedgetensorflowdeps
     URL      "https://github.com/second-state/WasmEdge-tensorflow-deps/releases/download/${WASMEDGE_DEPS_VERSION}/WasmEdge-tensorflow-deps-TF-${WASMEDGE_DEPS_VERSION}-${WASMEDGE_TENSORFLOW_SYSTEM_NAME}.tar.gz"
@@ -96,23 +105,22 @@ if(WASMEDGE_TENSORFLOW_SYSTEM_NAME STREQUAL "manylinux2014_x86_64" OR WASMEDGE_T
     FetchContent_Populate(wasmedgetensorflowdeps)
     if(APPLE)
       execute_process(
-        COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_cc.2.6.0.dylib ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_cc.2.dylib
+        COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_cc.2.12.0.dylib ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_cc.2.dylib
         COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_cc.2.dylib ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_cc.dylib
-        COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_framework.2.6.0.dylib ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_framework.2.dylib
+        COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_framework.2.12.0.dylib ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_framework.2.dylib
         COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_framework.2.dylib ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_framework.dylib
       )
     else()
       execute_process(
-        COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_cc.so.2.6.0 ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_cc.so.2
+        COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_cc.so.2.12.0 ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_cc.so.2
         COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_cc.so.2 ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_cc.so
-        COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_framework.so.2.6.0 ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_framework.so.2
+        COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_framework.so.2.12.0 ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_framework.so.2
         COMMAND ${CMAKE_COMMAND} -E create_symlink libtensorflow_framework.so.2 ${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_framework.so
       )
     endif()
     message(STATUS "Downloading dependency: libtensorflow - done")
   endif()
 endif()
-
 # Fetch Tensorflow-lite library.
 FetchContent_Declare(
   wasmedgetensorflowdepslite
@@ -126,26 +134,33 @@ if (NOT wasmedgetensorflowdepslite_POPULATED)
   message(STATUS "Downloading dependency: libtensorflowlite - done")
 endif ()
 
-# Setup Tensorflow library. Tensorflow has only x86_64.
-if(WASMEDGE_TENSORFLOW_SYSTEM_NAME STREQUAL "manylinux2014_x86_64")
+# Setup Tensorflow library.
+if(ANDROID)
+elseif(APPLE)
   set(WASMEDGE_TENSORFLOW_DEPS_TF_LIB
-    "${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_cc.so.2.6.0"
-    "${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_framework.so.2.6.0"
+    "${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_cc.2.12.0.dylib"
+    "${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_framework.2.12.0.dylib"
   )
-elseif(WASMEDGE_TENSORFLOW_SYSTEM_NAME STREQUAL "darwin_x86_64")
+elseif(UNIX)
   set(WASMEDGE_TENSORFLOW_DEPS_TF_LIB
-    "${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_cc.2.6.0.dylib"
-    "${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_framework.2.6.0.dylib"
+    "${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_cc.so.2.12.0"
+    "${wasmedgetensorflowdeps_SOURCE_DIR}/libtensorflow_framework.so.2.12.0"
   )
 endif()
 # Setup Tensorflow-lite library.
-if(APPLE)
+if(ANDROID)
+  set(WASMEDGE_TENSORFLOW_DEPS_TFLITE_LIB
+    "${wasmedgetensorflowdepslite_SOURCE_DIR}/libtensorflowlite_c.so"
+  )
+elseif(APPLE)
   set(WASMEDGE_TENSORFLOW_DEPS_TFLITE_LIB
     "${wasmedgetensorflowdepslite_SOURCE_DIR}/libtensorflowlite_c.dylib"
+    "${wasmedgetensorflowdepslite_SOURCE_DIR}/libtensorflowlite_flex.dylib"
   )
 elseif(UNIX)
   set(WASMEDGE_TENSORFLOW_DEPS_TFLITE_LIB
     "${wasmedgetensorflowdepslite_SOURCE_DIR}/libtensorflowlite_c.so"
+    "${wasmedgetensorflowdepslite_SOURCE_DIR}/libtensorflowlite_flex.so"
   )
 endif()
 
@@ -155,7 +170,7 @@ if(NOT WASMEDGE_CORE_PATH)
   FetchContent_Declare(
     wasmedge
     GIT_REPOSITORY https://github.com/WasmEdge/WasmEdge.git
-    GIT_TAG ${WASMEDGE_DEPS_VERSION}
+    GIT_TAG ${WASMEDGE_REPO_VERSION}
   )
 
   FetchContent_GetProperties(wasmedge)
@@ -191,7 +206,7 @@ if(NOT WASMEDGE_IMAGE_PATH)
   FetchContent_Declare(
     wasmedge_image
     GIT_REPOSITORY https://github.com/second-state/WasmEdge-image.git
-    GIT_TAG ${WASMEDGE_DEPS_VERSION}
+    GIT_TAG master
   )
 
   FetchContent_GetProperties(wasmedge_image)
@@ -227,7 +242,7 @@ if(NOT WASMEDGE_TENSORFLOW_PATH)
   FetchContent_Declare(
     wasmedge_tensorflow
     GIT_REPOSITORY https://github.com/second-state/WasmEdge-tensorflow.git
-    GIT_TAG ${WASMEDGE_DEPS_VERSION}
+    GIT_TAG master
   )
 
   FetchContent_GetProperties(wasmedge_tensorflow)

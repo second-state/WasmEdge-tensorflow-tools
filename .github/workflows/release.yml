@@ -47,11 +47,9 @@ jobs:
           - name: manylinux2014 x86_64
             host_runner: ubuntu-latest
             docker_tag: manylinux2014_x86_64
-            output_files: show-tflite-tensor wasmedge-tensorflow wasmedge-tensorflow-lite
           - name: manylinux2014 aarch64
             host_runner: linux-arm64
             docker_tag: manylinux2014_aarch64
-            output_files: show-tflite-tensor wasmedge-tensorflow-lite
     name: ${{ matrix.name }} platform
     needs: create
     runs-on: ${{ matrix.host_runner }}
@@ -79,8 +77,8 @@ jobs:
         fi
         cmake --build build
         cd build/tools
-        tar -zcvf WasmEdge-tf-tools.tar.gz ${{ matrix.output_files }}
-        tar Jcvf WasmEdge-tf-tools.tar.xz ${{ matrix.output_files }}
+        tar -zcvf WasmEdge-tf-tools.tar.gz show-tflite-tensor wasmedge-tensorflow wasmedge-tensorflow-lite
+        tar Jcvf WasmEdge-tf-tools.tar.xz show-tflite-tensor wasmedge-tensorflow wasmedge-tensorflow-lite
         cd ../..
         mv build/tools/WasmEdge-tf-tools.tar.gz WasmEdge-tf-tools.tar.gz
         mv build/tools/WasmEdge-tf-tools.tar.xz WasmEdge-tf-tools.tar.xz
